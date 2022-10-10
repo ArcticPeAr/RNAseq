@@ -1,5 +1,9 @@
 
 ######Read libraries####
+library(edgeR)
+library(xlsx)
+library(tidyverse)
+
 library(Rsamtools)  #another library needs part of this package to be unloaded. Always load Rsamtools first to avoid this
 library(Rsubread)
 library(DESeq2)
@@ -7,17 +11,15 @@ library(GenomicFeatures)
 library("edgeR")
 library("GenomicAlignments")
 library("BiocParallel") #enable multicore
-library(edgeR)
 library(DESeq2)
 library(ggplot2)
 library(mygene)  #Using rentrez because of a 404 error
 library(rentrez) #using mygene instead for now
 #library("staplr")
 library(qpdf)
-library(tidyverse)
 library(biomaRt)
 library("org.Hs.eg.db")
-library(xlsx)
+
 library(clusterProfiler)
 library(enrichplot)
 library("org.Hs.eg.db")
