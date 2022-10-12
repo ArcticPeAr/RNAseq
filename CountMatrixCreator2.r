@@ -3,6 +3,7 @@
 library(edgeR)
 library(xlsx)
 library(tidyverse)
+library(clusterProfiler)
 
 library(Rsamtools)  #another library needs part of this package to be unloaded. Always load Rsamtools first to avoid this
 library(Rsubread)
@@ -90,11 +91,11 @@ contrasts <- makeContrasts(contrasts=contrastVec2, levels=design)
 ##For gener
 #nedregulert i ‘Aβ vs TPA’       <- C7 vs C1  n1
 #OG
-#nedregulert i ‘LPS+Aβ vs Aβ’    <- T8 vs C1 n10
+#nedregulert i ‘LPS+Aβ vs Aβ’    <- T8 vs C7 n10
 #OG
-#oppregulert i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C1
+#oppregulert i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C7
 ################################################################################
-SpecTestVec <- c("C_1-C_7","C_1-T_8","C_1-T_11")
+SpecTestVec <- c("C_1-C_7","C_7-T_8","C_7-T_11")
 SpecTestWantVec <- c("UP", "UP","DOWN")
 
 SpecTestTippyTopGeneDFrr <- data.frame(matrix(ncol = 7, nrow = 0)) # create4 vector for list in loop
@@ -116,12 +117,12 @@ for (versus in SpecTestVec)
   SpecTestTippyTopGeneR2C[["Versus"]] <- versVec
   if (nrow(SpecTestTippyTopGenes)> 0)
   {
-    if (versus == "C_1-C-7" || versus == "C_1-T_8") #UP-REGULATED
+    if (versus == "C_1-C-7" || versus == "C_7-T_8") #UP-REGULATED
     {
     df2<-subset(SpecTestTippyTopGeneR2C, logFC > 0)
     SpecTestTippyTopGeneDFrr <- rbind(SpecTestTippyTopGeneDFrr, df2)
     }
-    if (versus == "C_1-T_11") #DOWN-REGULATED 
+    if (versus == "C_7-T_11") #DOWN-REGULATED 
     {
       df2<-subset(SpecTestTippyTopGeneR2C, logFC < 0)
       SpecTestTippyTopGeneDFrr <- rbind(SpecTestTippyTopGeneDFrr, df2)
@@ -148,12 +149,12 @@ for (versus in SpecTestVec)
   SpecTestTippyTopGeneR2C[["Versus"]] <- versVec
   if (nrow(SpecTestTippyTopGenes)> 0)
   {
-    if (versus == "C_1-T_11") #DOWN-REGULATED
+    if (versus == "C_7-T_11") #DOWN-REGULATED
     {
       df2<-subset(SpecTestTippyTopGeneR2C, logFC > 0)
       SpecTestTippyTopGeneDFss <- rbind(SpecTestTippyTopGeneDFss, df2)
     }
-    if (versus == "C_1-C-7" || versus == "C_1-T_8") #UP-REGULATED
+    if (versus == "C_1-C-7" || versus == "C_7-T_8") #UP-REGULATED
     {
       df2<-subset(SpecTestTippyTopGeneR2C, logFC < 0)
       SpecTestTippyTopGeneDFss <- rbind(SpecTestTippyTopGeneDFss, df2)
