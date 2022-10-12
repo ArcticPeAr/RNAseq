@@ -131,7 +131,7 @@ intersect(checkAllVec,nAll1_3)
 
 ################################################################################
 #Check directly against Novogens files for ALL and INSIGNIFICANT 
-#NOT NEEDED
+#NOT NEEDED!
 ################################################################################
 n8 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/C_7_vs_C_1.transcripts.DEA.csv", header=TRUE, sep ="\t")
 
