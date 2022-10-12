@@ -76,15 +76,17 @@ write.xlsx(fullDF.ddu2, "/media/petear/SharedPart/2BCommonGenesFirst.xlsx")
 #nedregulert i ‘LPS+Aβ vs Aβ’    <- T8 vs C7 n10
 #OG
 #oppregulert i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C7
+
+#UPDATED FILES!!
 ################################################################################
 
-n1 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/C_7_vs_C_1.transcripts.significant.DEA.DOWN.csv", header=TRUE, sep ="\t")
+n1 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
 n1 <- n1 %>% rename(posVal = C_7.value, negVal = C_1.value)
 
-n2 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/T_8_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
+n2 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_8_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
 colnames(n2) <- colnames(n1)
 
-n3 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/T_11_vs_C_7.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
+n3 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_11_vs_C_7.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
 colnames(n3) <- colnames(n1)
 
 nAll1_3 <- rbind(n1,n2,n3)
@@ -100,13 +102,15 @@ intersect(checkVec2b,nAll1_3)
 #OPP i ‘LPS+Aβ vs Aβ’    <- T8 vs C7 n10
 #ELLER
 #NED i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C7
-################################################################################
-n4 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/C_7_vs_C_1.transcripts.significant.DEA.UP.csv", header=TRUE, sep ="\t")
+#UPDATED FILES!!
 
-n5 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/T_8_vs_C_7.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
+################################################################################
+n4 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
+
+n5 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_8_vs_C_7.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
 colnames(n5) <- colnames(n4)
 
-n6 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/T_11_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
+n6 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_11_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
 colnames(n6) <- colnames(n4)
 
 nAll4_6 <- rbind(n4,n5,n6)
