@@ -46,7 +46,9 @@ fullDF.uud <- rbind(c7c1.up,t8c7.up,t11c7.down)
 fullDF.uud <- fullDF.uud[order(fullDF.uud$qvalue),]
 write.xlsx(fullDF.uud, "/media/petear/SharedPart/Table2A.xlsx")
 
-
+################################################################################
+#This section creates check files from the manuscript
+# And then checks files against a vector of gene names from above 
 ################################################################################
 check2a <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DofiTab2a.csv", header=TRUE, sep = ",")
 checkVec2a <- c(check2a$Name, check2a$Name.1)
@@ -102,8 +104,8 @@ intersect(checkVec2b,nAll1_3)
 #OPP i ‘LPS+Aβ vs Aβ’    <- T8 vs C7 n10
 #ELLER
 #NED i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C7
-#UPDATED FILES!!
 
+#UPDATED FILES!!
 ################################################################################
 n4 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
 
