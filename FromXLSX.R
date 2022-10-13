@@ -1,6 +1,6 @@
 library(xlsx)
 library(tidyverse)
-
+library("org.Hs.eg.db")
 
 ################################################################################
 ##For gener TABLE 2BB
@@ -92,8 +92,8 @@ n3 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002
 colnames(n3) <- colnames(n1)
 
 nAll1_3 <- rbind(n1,n2,n3)
-nAll1_3 <- nAll1_3$gene_name
-intersect(checkVec2b,nAll1_3)
+nAll1_3GN <- nAll1_3$gene_name
+intersect(checkVec2b,nAll1_3GN)
 
 ################################################################################
 #Check directly against Novogens files
@@ -116,8 +116,8 @@ n6 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002
 colnames(n6) <- colnames(n4)
 
 nAll4_6 <- rbind(n4,n5,n6)
-nAll4_6 <- nAll4_6$gene_name
-intersect(checkVec2a,nAll4_6)
+nAll4_6GN <- nAll4_6$gene_name
+intersect(checkVec2a,nAll4_6GN)
 
 ################################################################################
 #Check directly against Novogens files for ALL
@@ -145,4 +145,81 @@ colnames(n10) <- colnames(n8)
 
 fullDF.insig <- rbind(n8,n9,n10)
 intersect(checkAllVec,fullDF.insig$gene_name)
+
+################################################################################
+#Check with GO that Tormod liker
+#
+################################################################################
+wantedGo <- read.xlsx2("/media/petear/SharedPart/wantedGo.xlsx", sheetIndex = 1)
+wantGoVec <- c(wantedGo$goID)
+
+
+
+goTermDF <- data.frame(matrix(ncol = 4, nrow = 0))
+colnames(goTermDF) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENSEMBL")
+
+#Make a DF of all genes connected with certain Go terms
+for (term in wantGoVec)
+{
+  rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys=term, columns="ENSEMBL")
+  goTermDF <- rbind(goTermDF, rtrv)
+}
+
+#nAll4_6
+#nAll1_3
+
+names(nAll1_3)[names(nAll1_3) == "gene_id"] <- "ENSEMBL"
+names(nAll4_6)[names(nAll4_6) == "gene_id"] <- "ENSEMBL"
+
+n1_3Joined <- inner_join(goTermDF, nAll1_3, by = "ENSEMBL")
+n4_6Joined <- inner_join(goTermDF, nAll4_6, by = "ENSEMBL")
+
+#For just the 80 + 63 terms 
+
+n1_3JoinSorted <- n1_3Joined[order(n1_3Joined$pvalue),]
+n4_6JoinSorted <- n4_6Joined[order(n4_6Joined$pvalue),]
+
+write.xlsx(n1_3JoinSorted, "/media/petear/SharedPart/Ab_TPA-DownLPSAb_Ab-DownDHANSAb_Ab-Up.xlsx")
+write.xlsx(n4_6JoinSorted, "/media/petear/SharedPart/Ab_TPA-UpLPSAb_Ab-UpDHANSAb_Ab-Down.xlsx")
+
+
+################################################################################
+#make plots
+################################################################################
+plotList <- list("n1_3JoinSorted",n1_3JoinSorted, "n4_6JoinSorted",n4_6JoinSorted)
+i = 1
+pdf("test.pdf", width = 20, height =20)
+for (el in plotList) 
+{
+      if ((i %% 2) != 0)
+      {
+        identifier = el
+      i=i+1
+      }
+      else
+      {
+        MeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "ENSEMBL")
+        print(cnetplot(MeGo, color_category='#1b9e77',
+                       color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        
+        BeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "ENSEMBL")
+        print(cnetplot(BeGo, color_category='#1b9e77',
+                       color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        
+        CeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "ENSEMBL")
+        print(cnetplot(CeGo, color_category='#1b9e77', 
+                       color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        
+        AeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "ENSEMBL")
+        print(cnetplot(AeGo, color_category='#1b9e77', 
+                       color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        i=i+1
+      }
+}
+
+dev.off()
+
 

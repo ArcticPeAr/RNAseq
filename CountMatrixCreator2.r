@@ -4,6 +4,7 @@ library(edgeR)
 library(xlsx)
 library(tidyverse)
 library(clusterProfiler)
+library("org.Hs.eg.db")
 
 library(Rsamtools)  #another library needs part of this package to be unloaded. Always load Rsamtools first to avoid this
 library(Rsubread)
@@ -19,11 +20,11 @@ library(rentrez) #using mygene instead for now
 #library("staplr")
 library(qpdf)
 library(biomaRt)
-library("org.Hs.eg.db")
+
 
 library(clusterProfiler)
 library(enrichplot)
-library("org.Hs.eg.db")
+
 library(ggrepel)
 ########
 #Point code to where files are:
