@@ -1,6 +1,8 @@
 library(xlsx)
 library(tidyverse)
 library("org.Hs.eg.db")
+library(biomaRt)
+library(rWikiPathways)
 
 ################################################################################
 ##For gener TABLE 2BB
@@ -186,6 +188,8 @@ write.xlsx(n4_6JoinSorted, "/media/petear/SharedPart/Ab_TPA-UpLPSAb_Ab-UpDHANSAb
 ################################################################################
 #make plots
 ################################################################################
+setwd("/media/petear/SharedPart/Plots/")
+
 plotList <- list("n1_3JoinSorted",n1_3JoinSorted, "n4_6JoinSorted",n4_6JoinSorted)
 i = 1
 pdf("test.pdf", width = 20, height =20)
@@ -219,8 +223,36 @@ for (el in plotList)
         i=i+1
       }
 }
-
+e
 dev.off()
 
 
+################################################################################
+#'*Convert from ENSEMBL to ENTREZ*
+################################################################################
+
+marty <- useMart(biomart = "ENSEMBL_MART_ENSEMBL",
+                 dataset = "hsapiens_gene_ensembl",
+                 host = "https://www.ensembl.org")
+
+genes <- getBM(filters = "ensembl_gene_id",
+               attributes = c("ensembl_gene_id","entrezgene_id"),
+               values = n1_3JoinSorted$ENSEMBL, 
+               mart = marty)
+
+################################################################################
+#'*Convert from ENSEMBL to ENTREZ*
+################################################################################
+
+
+
+
+
+
+pdf("KEGG.pdf")
+eKEGG <- enrichWP(n1_3JoinSorted$ENSEMBL,keyType = "ENSEMBL")
+cnetplot(eKEGG, color_category='#1b9e77', 
+         color_gene='#d95f02')  + ggtitle("KEGG") + theme(plot.margin=unit(c(0.0,0.2,0.0,0.2), 'cm'))
+cnetplot(eKEGG, showCategory = 22, color_category='#1b9e77', 
+         color_gene='#d95f02') + ggtitle("KEGG -forced extended connections") + theme(plot.margin=unit(c(0.0,0.2,0.0,0.2), 'cm'))
 
