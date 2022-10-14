@@ -7,6 +7,6 @@ idVec <- c()
 n <- length(RNAcentralJson)
 for (var in 1:n)
 {
-  
+  idVec <- append(idVec, )
   
 }

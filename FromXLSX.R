@@ -223,7 +223,7 @@ for (el in plotList)
         i=i+1
       }
 }
-e
+
 dev.off()
 
 
