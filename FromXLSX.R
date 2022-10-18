@@ -3,7 +3,7 @@ library(tidyverse)
 library("org.Hs.eg.db")
 library(biomaRt)
 library(rWikiPathways)
-
+library(clusterProfiler)
 ################################################################################
 #Check directly against Novogens files
 
@@ -18,7 +18,7 @@ library(rWikiPathways)
 ################################################################################
 
 n1 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
-n1 <- n1 %>% rename(posVal = C_7.value, negVal = C_1.value)
+n1 <- n1 %>% rename("C_7.value" = "posVal", "C_1.value" = "negVal")
 
 n2 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_8_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
 colnames(n2) <- colnames(n1)
@@ -102,13 +102,32 @@ write.xlsx(n4_6JoinSorted, "/media/petear/SharedPart/Ab_TPA-UpLPSAb_Ab-UpDHANSAb
 
 
 ################################################################################
+#'*Go term Kulb wanted: GO:0048156*
+################################################################################
+kulbGoTerm <- data.frame(matrix(ncol = 4, nrow = 0))
+colnames(kulbGoTerm) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENSEMBL")
+
+rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys="GO:0048156", columns="ENSEMBL")
+kulbGoTerm <- rbind(kulbGoTerm, rtrv)
+
+kulbGon1_3Joined <- inner_join(kulbGoTerm, nAll1_3, by = "ENSEMBL")
+kulbGon4_6Joined <- inner_join(kulbGoTerm, nAll4_6, by = "ENSEMBL")
+
+write.xlsx(kulbGon1_3Joined, "/media/petear/SharedPart/Ab_TPA-DownLPSAb_Ab-DownDHANSAb_Ab-Up.xlsx")
+write.xlsx(kulbGon4_6Joined, "/media/petear/SharedPart/Ab_TPA-UpLPSAb_Ab-UpDHANSAb_Ab-Down.xlsx")
+
+################################################################################
 #'*Make plots*
 ################################################################################
 setwd("/media/petear/SharedPart/Plots/")
 
-plotList <- list("n1_3JoinSorted",n1_3JoinSorted, "n4_6JoinSorted",n4_6JoinSorted)
+#Edit plotList to you hearts content!
+plotList <- list("kulbGon1_3Joined",kulbGon1_3Joined, "kulbGon4_6Joined",kulbGon4_6Joined) #Add here what was taken out last time you ran plotting: "n1_3JoinSorted",n1_3JoinSorted, "n4_6JoinSorted",n4_6JoinSorted
+#Did you edit?
+
+#okay, PLOT AWAY!
 i = 1
-pdf("test.pdf", width = 20, height =20)
+pdf("test3.pdf", width = 20, height =20)
 for (el in plotList) 
 {
       if ((i %% 2) != 0)
