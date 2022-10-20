@@ -132,7 +132,7 @@ BeVec <- c()
 CeVec <- c()
 #okay, PLOT AWAY!
 i = 1
-#pdf("test3.pdf", width = 20, height =20)
+pdf("TauBindProt_n1_3_n4_6.pdf", width = 20, height =20)
 ## SYMBOL -- ENTREZID -- ENSEMBL
 ## gene_name -- NA -- ENSEMBL
 
@@ -152,7 +152,7 @@ for (el in plotList)
         MeVec <- append(MeVec, Mel)
         print(cnetplot(MeGo, color_category='#1b9e77',
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-        print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm'))) +scale_color_gradient(low="#b2df8a", high="#1f78b4")
         
         BeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
         Bel <- as.data.frame(BeGo)
@@ -161,7 +161,7 @@ for (el in plotList)
         BeVec <- append(BeVec, Bel)
         print(cnetplot(BeGo, color_category='#1b9e77',
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-        print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm'))) +scale_color_gradient(low="#b2df8a", high="#1f78b4")
         
         CeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
         Cel <- as.data.frame(CeGo)
@@ -170,11 +170,11 @@ for (el in plotList)
         CeVec <- append(CeVec, Cel)
         print(cnetplot(CeGo, color_category='#1b9e77', 
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-        print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+        print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm'))) +scale_color_gradient(low="#b2df8a", high="#1f78b4")
         
         AeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
         print(cnetplot(AeGo, color_category='#1b9e77', 
-                       color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+                       color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm'))) +scale_color_gradient(low="#b2df8a", high="#1f78b4")
         i=i+1
       }
 }
