@@ -4,6 +4,7 @@ library("org.Hs.eg.db")
 library(biomaRt)
 library(rWikiPathways)
 library(clusterProfiler)
+library(stringr) # to split strings
 ################################################################################
 #Check directly against Novogens files
 
@@ -18,7 +19,7 @@ library(clusterProfiler)
 ################################################################################
 
 n1 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
-n1 <- n1 %>% rename("C_7.value" = "posVal", "C_1.value" = "negVal")
+n1 <- n1 %>% rename("posVal" = "C_7.value", "negVal" = "C_1.value")
 
 n2 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_8_vs_C_7.transcripts.significant.DEA.DOWN.xls", header=TRUE, sep ="\t")
 colnames(n2) <- colnames(n1)
@@ -29,6 +30,8 @@ colnames(n3) <- colnames(n1)
 nAll1_3 <- rbind(n1,n2,n3)
 nAll1_3GN <- nAll1_3$gene_name
 intersect(checkVec2b,nAll1_3GN)
+
+names(nAll1_3)[names(nAll1_3) == "gene_id"] <- "ENSEMBL"
 
 ################################################################################
 #Check directly against Novogens files
@@ -43,6 +46,7 @@ intersect(checkVec2b,nAll1_3GN)
 #UPDATED FILES!!
 ################################################################################
 n4 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/C_7_vs_C_1.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
+n4 <- n4 %>% rename("posVal" = "C_7.value", "negVal" = "C_1.value")
 
 n5 <- read.delim("/media/petear/SharedPart/RNAseq/Result_X204SC21061474-Z01-F002_Homo_sapiens/7.DiffExprAnalysis/transcript/DEGlist/DEGlistUpdated/T_8_vs_C_7.transcripts.significant.DEA.UP.xls", header=TRUE, sep ="\t")
 colnames(n5) <- colnames(n4)
@@ -53,6 +57,8 @@ colnames(n6) <- colnames(n4)
 nAll4_6 <- rbind(n4,n5,n6)
 nAll4_6GN <- nAll4_6$gene_name
 intersect(checkVec2a,nAll4_6GN)
+
+names(nAll4_6)[names(nAll4_6) == "gene_id"] <- "ENSEMBL"
 
 ################################################################################
 #'*Check directly against Novogens files for ALL*
@@ -82,12 +88,6 @@ for (term in wantGoVec)
   rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys=term, columns="ENSEMBL")
   goTermDF <- rbind(goTermDF, rtrv)
 }
-
-#nAll4_6
-#nAll1_3
-
-names(nAll1_3)[names(nAll1_3) == "gene_id"] <- "ENSEMBL"
-names(nAll4_6)[names(nAll4_6) == "gene_id"] <- "ENSEMBL"
 
 n1_3Joined <- inner_join(goTermDF, nAll1_3, by = "ENSEMBL")
 n4_6Joined <- inner_join(goTermDF, nAll4_6, by = "ENSEMBL")
@@ -125,9 +125,17 @@ setwd("/media/petear/SharedPart/Plots/")
 plotList <- list("kulbGon1_3Joined",kulbGon1_3Joined, "kulbGon4_6Joined",kulbGon4_6Joined) #Add here what was taken out last time you ran plotting: "n1_3JoinSorted",n1_3JoinSorted, "n4_6JoinSorted",n4_6JoinSorted
 #Did you edit?
 
+
+# Create vectors for genes
+MeVec <- c()
+BeVec <- c()
+CeVec <- c()
 #okay, PLOT AWAY!
 i = 1
-pdf("test3.pdf", width = 20, height =20)
+#pdf("test3.pdf", width = 20, height =20)
+## SYMBOL -- ENTREZID -- ENSEMBL
+## gene_name -- NA -- ENSEMBL
+
 for (el in plotList) 
 {
       if ((i %% 2) != 0)
@@ -137,22 +145,34 @@ for (el in plotList)
       }
       else
       {
-        MeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "ENSEMBL")
+        MeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
+        Mel <- as.data.frame(MeGo)
+        Mel <- c(Mel$geneID[1])
+        #col <- str_split(col, "/")
+        MeVec <- append(MeVec, Mel)
         print(cnetplot(MeGo, color_category='#1b9e77',
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         
-        BeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "ENSEMBL")
+        BeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
+        Bel <- as.data.frame(BeGo)
+        Bel <- c(Bel$geneID[1])
+        #col <- str_split(col, "/")
+        BeVec <- append(BeVec, Bel)
         print(cnetplot(BeGo, color_category='#1b9e77',
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         
-        CeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "ENSEMBL")
+        CeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
+        Cel <- as.data.frame(CeGo)
+        Cel <- c(Cel$geneID[1])
+        #col <- str_split(col, "/")
+        CeVec <- append(CeVec, Cel)
         print(cnetplot(CeGo, color_category='#1b9e77', 
                        color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         
-        AeGo <- enrichGO(el$ENSEMBL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "ENSEMBL")
+        AeGo <- enrichGO(el$gene_name, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
         print(cnetplot(AeGo, color_category='#1b9e77', 
                        color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
         i=i+1
