@@ -16,7 +16,6 @@ for (var in 1:n)
 ################################################################################
 #'*Convert from RNACentral to ENSEMBL*
 ################################################################################
-
 marty <- useMart(biomart = "rnacentral",
                  dataset = "hsapiens_gene_ensembl",
                  host = "https://www.ensembl.org")
