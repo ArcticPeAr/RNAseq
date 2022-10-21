@@ -104,10 +104,10 @@ write.xlsx(n4_6JoinSorted, "/media/petear/SharedPart/Ab_TPA-UpLPSAb_Ab-UpDHANSAb
 ################################################################################
 #'*Go term Kulb wanted: GO:0048156*
 ################################################################################
-kulbGoTerm <- data.frame(matrix(ncol = 4, nrow = 0))
-colnames(kulbGoTerm) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENSEMBL")
+kulbGoTerm <- data.frame(matrix(ncol = 5, nrow = 0))
+colnames(kulbGoTerm) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL")
 
-rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys="GO:0048156", columns="ENSEMBL")
+rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys="GO:0048156", columns=c("ENTREZID","ENSEMBL"))
 kulbGoTerm <- rbind(kulbGoTerm, rtrv)
 
 kulbGon1_3Joined <- inner_join(kulbGoTerm, nAll1_3, by = "ENSEMBL")
@@ -202,13 +202,10 @@ genes <- getBM(filters = "ensembl_gene_id",
 
 
 
-
-
-
 pdf("KEGG.pdf")
-eKEGG <- enrichWP(n1_3JoinSorted$ENSEMBL,keyType = "ENSEMBL")
-cnetplot(eKEGG, color_category='#1b9e77', 
-         color_gene='#d95f02')  + ggtitle("KEGG") + theme(plot.margin=unit(c(0.0,0.2,0.0,0.2), 'cm'))
+eKEGG <- enrichKEGG(kulbGon1_3Joined$ENTREZID, organism ="hsa")
+dotplot(eKEGG)
 cnetplot(eKEGG, showCategory = 22, color_category='#1b9e77', 
          color_gene='#d95f02') + ggtitle("KEGG -forced extended connections") + theme(plot.margin=unit(c(0.0,0.2,0.0,0.2), 'cm'))
+
 
