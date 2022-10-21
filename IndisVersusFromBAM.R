@@ -51,6 +51,7 @@ qlf <- glmQLFTest(fit, contrast = c())
 ################################################################################
 #'*PAIRWISE COMPARISONS*
 ################################################################################
+
 contrastDF <- data.frame(t(combn(unique(grVector),2)))
 colnames(contrastDF) <- c("Y1", "Y2")
 
@@ -115,4 +116,57 @@ for (versus in versuses)
 ################################################################################
 #'*ALL DEGs*
 ################################################################################
+
+
+TippyTopGeneDF_ALL <- data.frame(matrix(ncol = 7, nrow = 0)) # create4 vector for list in loop
+colnames(TippyTopGeneDF_ALL) <- c("ENTREZID", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
+
+
+for (versus in versuses)
+{
+  qlf <- glmQLFTest(fit, contrast=contrasts[,versus])
+  TippyTopGenes <- topTags(qlf, sort.by="PValue", n=Inf, p=0.05)
+  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(SpecTestTippyTopGenes), "ENTREZID")
+  #assign(paste0("downReg", versus), listNegPosDFs[[versus]])
+  #<- tippyTopTagsR2C[tippyTopTagsR2C$logFC < 0,]
+  versVec <- rep(c(versus),times=nrow(TippyTopGeneR2C))
+  TippyTopGeneR2C[["Versus"]] <- versVec
+  TippyTopGeneDF_ALL <- rbind(TippyTopGeneDF_ALL, TippyTopGeneR2C)
+}
+
+
+################################################################################
+#'*TORMODS GO TERMS <3*
+################################################################################
+
+wantedGo <- read.xlsx2("/media/petear/SharedPart/wantedGo.xlsx", sheetIndex = 1)
+wantGoVec <- c(wantedGo$goID)
+
+
+goTermDF <- data.frame(matrix(ncol = 5, nrow = 0))
+colnames(goTermDF) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL")
+
+#Make a DF of all genes connected with certain Go terms
+for (term in wantGoVec)
+{
+  rtrv <- AnnotationDbi::select(org.Hs.eg.db, keytype="GOALL", keys=term, columns=c("ENTREZID","ENSEMBL"))
+  goTermDF <- rbind(goTermDF, rtrv)
+}
+
+uniqGOTermVec <- unique(goTermDF$GOALL)
+uniqVers_ALL <- unique(TippyTopGeneDF_ALL$Versus) #Done again because not all versuses might get hits
+
+joinedDF_GO_Vers <- data.frame(matrix(ncol = 11, nrow = 0))
+colnames(joinedDF_GO_Vers) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
+
+for (goterm in uniqGOTermVec)
+{
+  dfGO <- goTermDF[goTermDF$GOALL==goterm,]
+  for (vers in uniqVers_ALL)
+  {
+    dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
+    GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
+    joinedDF_GO_Vers <- rbind(joinedDF_GO_Vers, GoVersJoined)
+  }
+}
 
