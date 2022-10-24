@@ -96,7 +96,7 @@ contrasts <- makeContrasts(contrasts=contrastVec2, levels=design)
 #OG
 #oppregulert i ‘DHA+NS+Aβ vs Aβ’ <- T11 vs C7
 ################################################################################
-SpecTestVec <- c("C_1-C_7","C_7-T_8","C_7-T_11")
+SpecTestVec <- c("C_1-C_7","C_7-T_8","C_7-T_11", "T_8-T_11", "T_12-" )
 SpecTestWantVec <- c("UP", "UP","DOWN")
 
 SpecTestTippyTopGeneDFrr <- data.frame(matrix(ncol = 7, nrow = 0)) # create4 vector for list in loop
