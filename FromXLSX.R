@@ -29,7 +29,7 @@ colnames(n3) <- colnames(n1)
 
 nAll1_3 <- rbind(n1,n2,n3)
 nAll1_3GN <- nAll1_3$gene_name
-intersect(checkVec2b,nAll1_3GN)
+#intersect(checkVec2b,nAll1_3GN)
 
 names(nAll1_3)[names(nAll1_3) == "gene_id"] <- "ENSEMBL"
 
