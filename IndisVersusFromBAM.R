@@ -5,7 +5,7 @@ library(xlsx)
 library(tidyverse)
 library(clusterProfiler)
 library("org.Hs.eg.db")
-
+library(biomaRt)
 ################################################################################
 #'*Point code to where files are:*
 ################################################################################
@@ -146,6 +146,7 @@ wantGoVec <- c(wantedGo$goID)
 goTermDF <- data.frame(matrix(ncol = 5, nrow = 0))
 colnames(goTermDF) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL")
 
+
 #Make a DF of all genes connected with certain Go terms
 for (term in wantGoVec)
 {
@@ -153,11 +154,16 @@ for (term in wantGoVec)
   goTermDF <- rbind(goTermDF, rtrv)
 }
 
+################################################################################
+#'*LOOP OVER TERMS AND DEGs for FULL (ALL)*
+################################################################################
+
+#This is for all
 uniqGOTermVec <- unique(goTermDF$GOALL)
 uniqVers_ALL <- unique(TippyTopGeneDF_ALL$Versus) #Done again because not all versuses might get hits
 
-joinedDF_GO_Vers <- data.frame(matrix(ncol = 11, nrow = 0))
-colnames(joinedDF_GO_Vers) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
+joinedDF_GO_FULL <- data.frame(matrix(ncol = 11, nrow = 0))
+colnames(joinedDF_GO_FULL) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
 
 for (goterm in uniqGOTermVec)
 {
@@ -166,7 +172,271 @@ for (goterm in uniqGOTermVec)
   {
     dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
     GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
-    joinedDF_GO_Vers <- rbind(joinedDF_GO_Vers, GoVersJoined)
+    joinedDF_GO_FULL <- rbind(joinedDF_GO_FULL, GoVersJoined)
   }
 }
 
+################################################################################
+#'*ADD HGNC SYMBOLS TO joinedDF_GO_FULL*
+################################################################################
+mart = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+valsFull <- joinedDF_GO_FULL$ENSEMBL
+
+convertsFull <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters = "ensembl_gene_id", values = valsFull, mart = mart)
+convertsFull <- convertsFull %>% rename("ensembl_gene_id" = "ENSEMBL", "hgnc_symbol" = "SYMBOL")
+
+joinedDF_GO_FULL <- inner_join(joinedDF_GO_FULL, convertsFull, by = "ENSEMBL")
+
+################################################################################
+#'*MAKE PLOTS FOR FULL!*
+################################################################################
+setwd("/home/petear/")
+
+
+# Create vectors for genes
+MeVec_FULL <- c()
+BeVec_FULL <- c()
+CeVec_FULL <- c()
+
+#Split dataframe based on versus in "Versus"-column#
+SplitVers <- split(joinedDF_GO_FULL, joinedDF_GO_FULL$Versus)    # Split data frame in list
+
+#okay, PLOT AWAY!
+
+#Change name to what you want the plot to be named
+pdf("VersPlotsALL.pdf", width = 20, height =20)
+
+for (el in uniqVers_ALL) 
+{
+  meg <- subset(joinedDF_GO_FULL, Versus == el)
+  
+  identifier = el
+  MeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
+  Mel <- as.data.frame(MeGo)
+  Mel <- c(Mel$geneID[1])
+  #col <- str_split(col, "/")
+  MeVec_FULL <- append(MeVec_FULL, Mel)
+  print(cnetplot(MeGo, color_category='#1b9e77',
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    
+  BeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
+  Bel <- as.data.frame(BeGo)
+  Bel <- c(Bel$geneID[1])
+  #col <- str_split(col, "/")
+  BeVec_FULL <- append(BeVec_FULL, Bel)
+  print(cnetplot(BeGo, color_category='#1b9e77',
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    
+  CeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
+  Cel <- as.data.frame(CeGo)
+  Cel <- c(Cel$geneID[1])
+  #col <- str_split(col, "/")
+  CeVec_FULL <- append(CeVec_FULL, Cel)
+  print(cnetplot(CeGo, color_category='#1b9e77', 
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    
+  AeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
+  print(cnetplot(AeGo, color_category='#1b9e77', 
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+}
+
+
+dev.off()
+
+
+################################################################################
+#'*LOOP OVER TERMS AND DEGs for DOWN*
+################################################################################
+
+#This is for down
+uniqGOTermVec <- unique(goTermDF$GOALL)
+uniqVers_DOWN <- unique(TippyTopGeneDF_DOWN$Versus) #Done again because not all versuses might get hits
+
+joinedDF_GO_DOWN <- data.frame(matrix(ncol = 11, nrow = 0))
+colnames(joinedDF_GO_DOWN) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
+
+for (goterm in uniqGOTermVec)
+{
+  dfGO <- goTermDF[goTermDF$GOALL==goterm,]
+  for (vers in uniqVers_DOWN)
+       {
+         dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
+         GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
+         joinedDF_GO_DOWN <- rbind(joinedDF_GO_DOWN, GoVersJoined)
+        }
+}
+
+################################################################################
+#'*ADD HGNC SYMBOLS TO joinedDF_GO_DOWN*
+################################################################################
+mart = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+valsFull <- joinedDF_GO_DOWN$ENSEMBL
+
+convertsFull <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters = "ensembl_gene_id", values = valsFull, mart = mart)
+convertsFull <- convertsFull %>% rename("ensembl_gene_id" = "ENSEMBL", "hgnc_symbol" = "SYMBOL")
+
+joinedDF_GO_DOWN <- inner_join(joinedDF_GO_DOWN, convertsFull, by = "ENSEMBL")
+
+################################################################################
+#'*MAKE PLOTS FOR DOWN!*
+################################################################################
+setwd("/home/petear/")
+
+
+# Create vectors for genes
+MeVec_DOWN <- c()
+BeVec_DOWN <- c()
+CeVec_DOWN <- c()
+
+#Split dataframe based on versus in "Versus"-column#
+SplitVers <- split(joinedDF_GO_DOWN, joinedDF_GO_DOWN$Versus)    # Split data frame in list
+
+#okay, PLOT AWAY!
+
+#Change name to what you want the plot to be named
+pdf("VersPlotsDown.pdf", width = 20, height =20)
+
+for (el in uniqVers_DOWN) 
+{
+  meg <- subset(joinedDF_GO_DOWN, Versus == el)
+  
+  identifier = el
+  MeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
+  Mel <- as.data.frame(MeGo)
+  Mel <- c(Mel$geneID[1])
+  #col <- str_split(col, "/")
+  MeVec_DOWN <- append(MeVec_DOWN, Mel)
+  print(cnetplot(MeGo, color_category='#1b9e77',
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  BeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
+  Bel <- as.data.frame(BeGo)
+  Bel <- c(Bel$geneID[1])
+  #col <- str_split(col, "/")
+  BeVec_DOWN <- append(BeVec_DOWN, Bel)
+  print(cnetplot(BeGo, color_category='#1b9e77',
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  CeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
+  Cel <- as.data.frame(CeGo)
+  Cel <- c(Cel$geneID[1])
+  #col <- str_split(col, "/")
+  CeVec_DOWN <- append(CeVec_DOWN, Cel)
+  print(cnetplot(CeGo, color_category='#1b9e77', 
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  AeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
+  print(cnetplot(AeGo, color_category='#1b9e77', 
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+}
+
+
+dev.off()
+
+
+
+################################################################################
+#'*LOOP OVER TERMS AND DEGs for UP*
+################################################################################
+
+#This is for all
+uniqGOTermVec <- unique(goTermDF$GOALL)
+uniqVers_UP <- unique(TippyTopGeneDF_UP$Versus) #Done again because not all versuses might get hits
+
+joinedDF_GO_UP <- data.frame(matrix(ncol = 11, nrow = 0))
+colnames(joinedDF_GO_UP) <- c("GOALL", "EVIDENCEALL", "ONTOLOGYALL", "ENTREZID", "ENSEMBL", "logFC", "logCPM", "F", "PValue", "FDR", "Versus")
+
+for (goterm in uniqGOTermVec)
+{
+  dfGO <- goTermDF[goTermDF$GOALL==goterm,]
+  for (vers in uniqVers_UP)
+  {
+    dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
+    GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
+    joinedDF_GO_UP <- rbind(joinedDF_GO_UP, GoVersJoined)
+  }
+}
+
+################################################################################
+#'*ADD HGNC SYMBOLS TO joinedDF_GO_UP*
+################################################################################
+mart = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
+
+valsFull <- joinedDF_GO_UP$ENSEMBL
+
+convertsFull <- getBM(attributes = c("ensembl_gene_id", "hgnc_symbol"), filters = "ensembl_gene_id", values = valsFull, mart = mart)
+convertsFull <- convertsFull %>% rename("ensembl_gene_id" = "ENSEMBL", "hgnc_symbol" = "SYMBOL")
+
+joinedDF_GO_UP <- inner_join(joinedDF_GO_UP, convertsFull, by = "ENSEMBL")
+
+################################################################################
+#'*MAKE PLOTS FOR UP!*
+################################################################################
+setwd("/home/petear/")
+
+
+# Create vectors for genes
+MeVec_UP <- c()
+BeVec_UP <- c()
+CeVec_UP <- c()
+
+#Split dataframe based on versus in "Versus"-column#
+SplitVers <- split(joinedDF_GO_UP, joinedDF_GO_UP$Versus)    # Split data frame in list
+
+#okay, PLOT AWAY!
+
+#Change name to what you want the plot to be named
+pdf("VersPlotsUp.pdf", width = 20, height =20)
+
+for (el in uniqVers_UP) 
+{
+  meg <- subset(joinedDF_GO_UP, Versus == el)
+  
+  identifier = el
+  MeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
+  Mel <- as.data.frame(MeGo)
+  Mel <- c(Mel$geneID[1])
+  #col <- str_split(col, "/")
+  MeVec_UP <- append(MeVec_UP, Mel)
+  print(cnetplot(MeGo, color_category='#1b9e77',
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  BeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
+  Bel <- as.data.frame(BeGo)
+  Bel <- c(Bel$geneID[1])
+  #col <- str_split(col, "/")
+  BeVec_UP <- append(BeVec_UP, Bel)
+  print(cnetplot(BeGo, color_category='#1b9e77',
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  CeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
+  Cel <- as.data.frame(CeGo)
+  Cel <- c(Cel$geneID[1])
+  #col <- str_split(col, "/")
+  CeVec_UP <- append(CeVec_UP, Cel)
+  print(cnetplot(CeGo, color_category='#1b9e77', 
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+  
+  AeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
+  print(cnetplot(AeGo, color_category='#1b9e77', 
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+}
+
+
+dev.off()
+
+
+################################################################################
+#'*PATHWAY ANALYSIS*
+################################################################################
