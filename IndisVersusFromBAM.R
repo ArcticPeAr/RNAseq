@@ -77,12 +77,12 @@ for (versus in versuses)
 {
   qlf <- glmQLFTest(fit, contrast=contrasts[,versus])
   TippyTopGenes <- topTags(qlf, sort.by="PValue", n=Inf, p=0.05)
-  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(SpecTestTippyTopGenes), "ENTREZID")
+  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(TippyTopGenes), "ENTREZID")
   #assign(paste0("downReg", versus), listNegPosDFs[[versus]])
   #<- tippyTopTagsR2C[tippyTopTagsR2C$logFC < 0,]
   versVec <- rep(c(versus),times=nrow(TippyTopGeneR2C))
   TippyTopGeneR2C[["Versus"]] <- versVec
-  if (nrow(SpecTestTippyTopGenes)> 0)
+  if (nrow(TippyTopGenes)> 0)
   {
     df2<-subset(TippyTopGeneR2C, logFC > 0)
     TippyTopGeneDF_UP <- rbind(TippyTopGeneDF_UP, df2)
@@ -101,12 +101,12 @@ for (versus in versuses)
 {
   qlf <- glmQLFTest(fit, contrast=contrasts[,versus])
   TippyTopGenes <- topTags(qlf, sort.by="PValue", n=Inf, p=0.05)
-  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(SpecTestTippyTopGenes), "ENTREZID")
+  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(TippyTopGenes), "ENTREZID")
   #assign(paste0("downReg", versus), listNegPosDFs[[versus]])
   #<- tippyTopTagsR2C[tippyTopTagsR2C$logFC < 0,]
   versVec <- rep(c(versus),times=nrow(TippyTopGeneR2C))
   TippyTopGeneR2C[["Versus"]] <- versVec
-  if (nrow(SpecTestTippyTopGenes)> 0)
+  if (nrow(TippyTopGenes)> 0)
   {
     df2<-subset(TippyTopGeneR2C, logFC < 0)
     TippyTopGeneDF_DOWN <- rbind(TippyTopGeneDF_DOWN, df2)
@@ -126,7 +126,7 @@ for (versus in versuses)
 {
   qlf <- glmQLFTest(fit, contrast=contrasts[,versus])
   TippyTopGenes <- topTags(qlf, sort.by="PValue", n=Inf, p=0.05)
-  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(SpecTestTippyTopGenes), "ENTREZID")
+  TippyTopGeneR2C <- tibble::rownames_to_column(data.frame(TippyTopGenes), "ENTREZID")
   #assign(paste0("downReg", versus), listNegPosDFs[[versus]])
   #<- tippyTopTagsR2C[tippyTopTagsR2C$logFC < 0,]
   versVec <- rep(c(versus),times=nrow(TippyTopGeneR2C))
@@ -177,7 +177,7 @@ for (goterm in uniqGOTermVec)
 }
 
 ################################################################################
-#'*ADD HGNC SYMBOLS TO joinedDF_GO_FULL*
+#'*ADD HGNC SYMBOLS TO joinedDF_GO_FULL (ALL)*
 ################################################################################
 mart = useMart("ensembl", dataset = "hsapiens_gene_ensembl")
 
@@ -218,30 +218,30 @@ for (el in uniqVers_ALL)
   #col <- str_split(col, "/")
   MeVec_FULL <- append(MeVec_FULL, Mel)
   print(cnetplot(MeGo, color_category='#1b9e77',
-                   color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    
+  
   BeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Bel <- as.data.frame(BeGo)
   Bel <- c(Bel$geneID[1])
   #col <- str_split(col, "/")
   BeVec_FULL <- append(BeVec_FULL, Bel)
   print(cnetplot(BeGo, color_category='#1b9e77',
-                   color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    
+  
   CeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Cel <- as.data.frame(CeGo)
   Cel <- c(Cel$geneID[1])
   #col <- str_split(col, "/")
   CeVec_FULL <- append(CeVec_FULL, Cel)
   print(cnetplot(CeGo, color_category='#1b9e77', 
-                   color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    
+  
   AeGo <- enrichGO(meg$SYMBOL, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   print(cnetplot(AeGo, color_category='#1b9e77', 
-                   color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+                 color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
 }
 
 
@@ -263,11 +263,11 @@ for (goterm in uniqGOTermVec)
 {
   dfGO <- goTermDF[goTermDF$GOALL==goterm,]
   for (vers in uniqVers_DOWN)
-       {
-         dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
-         GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
-         joinedDF_GO_DOWN <- rbind(joinedDF_GO_DOWN, GoVersJoined)
-        }
+  {
+    dfVERS <- TippyTopGeneDF_DOWN[TippyTopGeneDF_DOWN$Versus==vers,]
+    GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
+    joinedDF_GO_DOWN <- rbind(joinedDF_GO_DOWN, GoVersJoined)
+  }
 }
 
 ################################################################################
@@ -359,7 +359,7 @@ for (goterm in uniqGOTermVec)
   dfGO <- goTermDF[goTermDF$GOALL==goterm,]
   for (vers in uniqVers_UP)
   {
-    dfVERS <- TippyTopGeneDF_ALL[TippyTopGeneDF_ALL$Versus==vers,]
+    dfVERS <- TippyTopGeneDF_UP[TippyTopGeneDF_UP$Versus==vers,]
     GoVersJoined <- inner_join(dfGO, dfVERS, by = "ENTREZID")
     joinedDF_GO_UP <- rbind(joinedDF_GO_UP, GoVersJoined)
   }
@@ -438,5 +438,5 @@ dev.off()
 
 
 ################################################################################
-#'*PATHWAY ANALYSIS*
+#'*PATHWAY ANALYSIS FOR DOWN * 
 ################################################################################
