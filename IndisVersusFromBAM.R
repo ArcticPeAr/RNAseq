@@ -216,6 +216,7 @@ for (el in uniqVers_ALL)
   Mel <- c(Melk$geneID[1])
   if (nrow(Melk) > 0)
   {
+    MeVec_FULL <- append(MeVec_FULL, el)
     MeVec_FULL <- append(MeVec_FULL, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -230,6 +231,7 @@ for (el in uniqVers_ALL)
   Bel <- c(Belk$geneID[1])
   if (nrow(Belk) > 0)
   {
+    BeVec_FULL <- append(BeVec_FULL, el)
     BeVec_FULL <- append(BeVec_FULL, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -244,6 +246,7 @@ for (el in uniqVers_ALL)
   Cel <- c(Celk$geneID[1])
   if (nrow(Celk) > 0)
   {
+    CeVec_FULL <- append(CeVec_FULL, el)
     CeVec_FULL <- append(CeVec_FULL, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -326,6 +329,7 @@ for (el in uniqVers_DOWN)
   Mel <- c(Melk$geneID[1])
   if (nrow(Melk) > 0)
   {
+    MeVec_DOWM <- append(MeVec_DOWN, el)
     MeVec_DOWN <- append(MeVec_DOWN, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -340,6 +344,7 @@ for (el in uniqVers_DOWN)
   Bel <- c(Belk$geneID[1])
   if (nrow(Belk) > 0)
   {
+    BeVec_DOWM <- append(BeVec_DOWN, el)
     BeVec_DOWN <- append(BeVec_DOWN, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -355,6 +360,7 @@ for (el in uniqVers_DOWN)
   
   if (nrow(Celk) > 0)
   {
+    CeVec_DOWM <- append(CeVec_DOWN, el)
     CeVec_DOWN <- append(CeVec_DOWN, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -439,6 +445,8 @@ for (el in uniqVers_UP)
   MeVec_FULL <- append(MeVec_FULL, Mel)
   if (nrow(Melk) > 0)
   {
+    MeVec_UP <- append(MeVec_UP, el)
+    MeVec_UP <- append(MeVec_UP, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(MeGo$ID) >1)
@@ -452,6 +460,7 @@ for (el in uniqVers_UP)
   Bel <- c(Belk$geneID[1])
   if (nrow(Belk) > 0)
   {
+    BeVec_UP <- append(BeVec_UP, el)
     BeVec_UP <- append(BeVec_UP, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -466,6 +475,7 @@ for (el in uniqVers_UP)
   Cel <- c(Celk$geneID[1])
   if (nrow(Celk) > 0)
   {
+    CeVec_UP <- append(CeVec_UP, el)
     CeVec_UP <- append(CeVec_UP, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
