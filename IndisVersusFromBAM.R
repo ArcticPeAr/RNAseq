@@ -219,7 +219,10 @@ for (el in uniqVers_ALL)
     MeVec_FULL <- append(MeVec_FULL, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(MeGo$ID) >1)
+    {
+      print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
@@ -230,7 +233,10 @@ for (el in uniqVers_ALL)
     BeVec_FULL <- append(BeVec_FULL, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(BeGo$ID) >1)
+    {
+      print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
@@ -241,7 +247,10 @@ for (el in uniqVers_ALL)
     CeVec_FULL <- append(CeVec_FULL, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(CeGo$ID) >1)
+    {
     print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
@@ -293,8 +302,6 @@ joinedDF_GO_DOWN <- inner_join(joinedDF_GO_DOWN, convertsFull, by = "ENSEMBL")
 ################################################################################
 #'*MAKE PLOTS FOR DOWN!*
 ################################################################################
-setwd("/home/petear/")
-
 
 # Create vectors for genes
 MeVec_DOWN <- c()
@@ -322,7 +329,10 @@ for (el in uniqVers_DOWN)
     MeVec_DOWN <- append(MeVec_DOWN, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(MeGo$ID) >1)
+    {
+      print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
@@ -333,7 +343,10 @@ for (el in uniqVers_DOWN)
     BeVec_DOWN <- append(BeVec_DOWN, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(BeGo$ID) >1)
+    {
+      print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    } 
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
@@ -345,7 +358,10 @@ for (el in uniqVers_DOWN)
     CeVec_DOWN <- append(CeVec_DOWN, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-    print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(CeGo$ID) >1)
+    {
+      print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
@@ -398,7 +414,6 @@ joinedDF_GO_UP <- inner_join(joinedDF_GO_UP, convertsFull, by = "ENSEMBL")
 ################################################################################
 #'*MAKE PLOTS FOR UP!*
 ################################################################################
-setwd("/home/petear/")
 
 
 # Create vectors for genes
@@ -406,8 +421,6 @@ MeVec_UP <- c()
 BeVec_UP <- c()
 CeVec_UP <- c()
 
-#Split dataframe based on versus in "Versus"-column#
-SplitVers <- split(joinedDF_GO_UP, joinedDF_GO_UP$Versus)    # Split data frame in list
 
 #okay, PLOT AWAY!
 
@@ -416,6 +429,7 @@ pdf("VersPlotsUp.pdf", width = 20, height =20)
 
 for (el in uniqVers_UP) 
 {
+  cat(el)
   meg <- subset(joinedDF_GO_UP, Versus == el)
   meg <- unique(meg$SYMBOL)
   identifier = el
@@ -427,7 +441,10 @@ for (el in uniqVers_UP)
   {
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(MeGo$ID) >1)
+    {
     print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
@@ -438,7 +455,10 @@ for (el in uniqVers_UP)
     BeVec_UP <- append(BeVec_UP, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(BeGo$ID) >1)
+    {
     print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
@@ -449,7 +469,10 @@ for (el in uniqVers_UP)
     CeVec_UP <- append(CeVec_UP, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    if (length(BeGo$ID) >1)
+    {
     print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    }
   }
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
