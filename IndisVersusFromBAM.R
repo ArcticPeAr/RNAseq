@@ -214,9 +214,9 @@ for (el in uniqVers_ALL)
   MeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
   Melk <- as.data.frame(MeGo)
   Mel <- c(Melk$geneID[1])
-  MeVec_FULL <- append(MeVec_FULL, Mel)
   if (nrow(Melk) > 0)
   {
+    MeVec_FULL <- append(MeVec_FULL, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -225,29 +225,29 @@ for (el in uniqVers_ALL)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
-  BeVec_FULL <- append(BeVec_FULL, Bel)
   if (nrow(Belk) > 0)
   {
-  print(cnetplot(BeGo, color_category='#1b9e77',
+    BeVec_FULL <- append(BeVec_FULL, Bel)
+    print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
-  CeVec_FULL <- append(CeVec_FULL, Cel)
   if (nrow(Celk) > 0)
   {
-  print(cnetplot(CeGo, color_category='#1b9e77', 
+    CeVec_FULL <- append(CeVec_FULL, Cel)
+    print(cnetplot(CeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
   if (nrow(Aelk) > 0)
   {
-  print(cnetplot(AeGo, color_category='#1b9e77', 
+    print(cnetplot(AeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 }
@@ -317,9 +317,9 @@ for (el in uniqVers_DOWN)
   MeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
   Melk <- as.data.frame(MeGo)
   Mel <- c(Melk$geneID[1])
-  MeVec_FULL <- append(MeVec_FULL, Mel)
   if (nrow(Melk) > 0)
   {
+    MeVec_DOWN <- append(MeVec_DOWN, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     print(goplot(MeGo) + ggtitle(paste("Ontology for Molecular Function of", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
@@ -328,30 +328,31 @@ for (el in uniqVers_DOWN)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
-  BeVec_FULL <- append(BeVec_FULL, Bel)
   if (nrow(Belk) > 0)
   {
-  print(cnetplot(BeGo, color_category='#1b9e77',
+    BeVec_DOWN <- append(BeVec_DOWN, Bel)
+    print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
-  CeVec_FULL <- append(CeVec_FULL, Cel)
+  
   if (nrow(Celk) > 0)
   {
-  print(cnetplot(CeGo, color_category='#1b9e77', 
-                 color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    CeVec_DOWN <- append(CeVec_DOWN, Cel)
+    print(cnetplot(CeGo, color_category='#1b9e77', 
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
   if (nrow(Aelk) > 0)
   {
-  print(cnetplot(AeGo, color_category='#1b9e77', 
+    print(cnetplot(AeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 }
@@ -432,29 +433,29 @@ for (el in uniqVers_UP)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
-  BeVec_FULL <- append(BeVec_FULL, Bel)
   if (nrow(Belk) > 0)
   {
-  print(cnetplot(BeGo, color_category='#1b9e77',
-                 color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    BeVec_UP <- append(BeVec_UP, Bel)
+    print(cnetplot(BeGo, color_category='#1b9e77',
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(BeGo) + ggtitle(paste("Ontology for Biological Process", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
-  CeVec_FULL <- append(CeVec_FULL, Cel)
   if (nrow(Celk) > 0)
   {
-  print(cnetplot(CeGo, color_category='#1b9e77', 
-                 color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
-  print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    CeVec_UP <- append(CeVec_UP, Cel)
+    print(cnetplot(CeGo, color_category='#1b9e77', 
+                   color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
+    print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
   if (nrow(Aelk) > 0)
   {
-  print(cnetplot(AeGo, color_category='#1b9e77', 
+    print(cnetplot(AeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for all three GO classificiations:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
   }
 }
