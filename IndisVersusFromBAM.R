@@ -193,11 +193,13 @@ joinedDF_GO_FULL <- inner_join(joinedDF_GO_FULL, convertsFull, by = "ENSEMBL")
 setwd("/home/petear/")
 
 
-# Create vectors for genes
-MeVec_FULL <- c()
-BeVec_FULL <- c()
-CeVec_FULL <- c()
-
+# Create DF for genes
+MeDF_FULL <- data.frame(matrix(ncol = length(uniqVers_ALL), nrow = 500 ))
+colnames(MeDF_FULL) <- uniqVers_ALL
+BeDF_FULL <- data.frame(matrix(ncol = length(uniqVers_ALL), nrow = 500 ))
+colnames(BeDF_FULL) <- uniqVers_ALL
+CeDF_FULL <- data.frame(matrix(ncol = length(uniqVers_ALL), nrow = 500 ))
+colnames(CeDF_FULL) <- uniqVers_ALL
 #Split dataframe based on versus in "Versus"-column#
 #SplitVers <- split(joinedDF_GO_FULL, joinedDF_GO_FULL$Versus)    # Split data frame in list
 
@@ -214,10 +216,15 @@ for (el in uniqVers_ALL)
   MeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
   Melk <- as.data.frame(MeGo)
   Mel <- c(Melk$geneID[1])
+  ForCol <- str_split(Mel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  MeDF_FULL[el] <- ForCol
   if (nrow(Melk) > 0)
   {
-    MeVec_FULL <- append(MeVec_FULL, el)
-    MeVec_FULL <- append(MeVec_FULL, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(MeGo$ID) >1)
@@ -229,10 +236,15 @@ for (el in uniqVers_ALL)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
+  ForCol <- str_split(Bel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  BeDF_FULL[el] <- ForCol
   if (nrow(Belk) > 0)
   {
-    BeVec_FULL <- append(BeVec_FULL, el)
-    BeVec_FULL <- append(BeVec_FULL, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(BeGo$ID) >1)
@@ -244,10 +256,15 @@ for (el in uniqVers_ALL)
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
+  ForCol <- str_split(Cel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  CeDF_FULL[el] <- ForCol
   if (nrow(Celk) > 0)
   {
-    CeVec_FULL <- append(CeVec_FULL, el)
-    CeVec_FULL <- append(CeVec_FULL, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(CeGo$ID) >1)
@@ -255,6 +272,7 @@ for (el in uniqVers_ALL)
     print(goplot(CeGo) + ggtitle(paste("Ontology for Cellular Component", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     }
   }
+
   AeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "ALL", keyType = "SYMBOL")
   Aelk <- as.data.frame(AeGo) #to check for hits
   if (nrow(Aelk) > 0)
@@ -306,10 +324,13 @@ joinedDF_GO_DOWN <- inner_join(joinedDF_GO_DOWN, convertsFull, by = "ENSEMBL")
 #'*MAKE PLOTS FOR DOWN!*
 ################################################################################
 
-# Create vectors for genes
-MeVec_DOWN <- c()
-BeVec_DOWN <- c()
-CeVec_DOWN <- c()
+# Create DF for genes
+MeDF_DOWN <- data.frame(matrix(ncol = length(uniqVers_DOWN), nrow = 500 ))
+colnames(MeDF_DOWM) <- uniqVers_DOWN
+BeDF_DOWN <- data.frame(matrix(ncol = length(uniqVers_DOWN), nrow = 500 ))
+colnames(BeDF_DOWM) <- uniqVers_DOWN
+CeDF_DOWM <- data.frame(matrix(ncol = length(uniqVers_DOWN), nrow = 500 ))
+colnames(CeDF_DOWM) <- uniqVers_DOWN
 
 #Split dataframe based on versus in "Versus"-column#
 SplitVers <- split(joinedDF_GO_DOWN, joinedDF_GO_DOWN$Versus)    # Split data frame in list
@@ -327,10 +348,15 @@ for (el in uniqVers_DOWN)
   MeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "MF", keyType = "SYMBOL")
   Melk <- as.data.frame(MeGo)
   Mel <- c(Melk$geneID[1])
+  ForCol <- str_split(Mel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  MeDF_DOWN[el] <- ForCol
   if (nrow(Melk) > 0)
   {
-    MeVec_DOWM <- append(MeVec_DOWN, el)
-    MeVec_DOWN <- append(MeVec_DOWN, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(MeGo$ID) >1)
@@ -342,10 +368,15 @@ for (el in uniqVers_DOWN)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
+  ForCol <- str_split(Bel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  BeDF_DOWN[el] <- ForCol
   if (nrow(Belk) > 0)
   {
-    BeVec_DOWM <- append(BeVec_DOWN, el)
-    BeVec_DOWN <- append(BeVec_DOWN, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                  color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(BeGo$ID) >1)
@@ -357,11 +388,15 @@ for (el in uniqVers_DOWN)
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
-  
+  ForCol <- str_split(Cel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  CeDF_DOWN[el] <- ForCol
   if (nrow(Celk) > 0)
   {
-    CeVec_DOWM <- append(CeVec_DOWN, el)
-    CeVec_DOWN <- append(CeVec_DOWN, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(CeGo$ID) >1)
@@ -422,12 +457,13 @@ joinedDF_GO_UP <- inner_join(joinedDF_GO_UP, convertsFull, by = "ENSEMBL")
 ################################################################################
 
 
-# Create vectors for genes
-MeVec_UP <- c()
-BeVec_UP <- c()
-CeVec_UP <- c()
-
-
+# Create DF for genes
+MeDF_UP <- data.frame(matrix(ncol = length(uniqVers_UP), nrow = 500 ))
+colnames(MeDF_UP) <- uniqVers_UP
+BeDF_UP <- data.frame(matrix(ncol = length(uniqVers_UP), nrow = 500 ))
+colnames(BeDF_UP) <- uniqVers_UP
+CeDF_UP <- data.frame(matrix(ncol = length(uniqVers_UP), nrow = 500 ))
+colnames(CeDF_FULL) <- uniqVers_ALL
 #okay, PLOT AWAY!
 
 #Change name to what you want the plot to be named
@@ -435,7 +471,6 @@ pdf("VersPlotsUp.pdf", width = 20, height =20)
 
 for (el in uniqVers_UP) 
 {
-  cat(el)
   meg <- subset(joinedDF_GO_UP, Versus == el)
   meg <- unique(meg$SYMBOL)
   identifier = el
@@ -443,10 +478,15 @@ for (el in uniqVers_UP)
   Melk <- as.data.frame(MeGo)
   Mel <- c(Melk$geneID[1])
   MeVec_FULL <- append(MeVec_FULL, Mel)
+  ForCol <- str_split(Mel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  MeDF_UP[el] <- ForCol
   if (nrow(Melk) > 0)
   {
-    MeVec_UP <- append(MeVec_UP, el)
-    MeVec_UP <- append(MeVec_UP, Mel)
     print(cnetplot(MeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Molecular Function:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(MeGo$ID) >1)
@@ -458,10 +498,15 @@ for (el in uniqVers_UP)
   BeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "BP", keyType = "SYMBOL")
   Belk <- as.data.frame(BeGo)
   Bel <- c(Belk$geneID[1])
+  ForCol <- str_split(Bel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  BeDF_UP[el] <- ForCol
   if (nrow(Belk) > 0)
   {
-    BeVec_UP <- append(BeVec_UP, el)
-    BeVec_UP <- append(BeVec_UP, Bel)
     print(cnetplot(BeGo, color_category='#1b9e77',
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Biological Process:",identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(BeGo$ID) >1)
@@ -473,10 +518,15 @@ for (el in uniqVers_UP)
   CeGo <- enrichGO(meg, OrgDb = org.Hs.eg.db, ont = "CC", keyType = "SYMBOL")
   Celk <- as.data.frame(CeGo)
   Cel <- c(Celk$geneID[1])
+  ForCol <- str_split(Cel, "/")
+  ForCol <- unlist(ForCol)
+  while (length(ForCol) < 500)
+  {
+    ForCol <- append(ForCol, NA)
+  }
+  CeDF_UP[el] <- ForCol
   if (nrow(Celk) > 0)
   {
-    CeVec_UP <- append(CeVec_UP, el)
-    CeVec_UP <- append(CeVec_UP, Cel)
     print(cnetplot(CeGo, color_category='#1b9e77', 
                    color_gene='#d95f02') + ggtitle(paste("Ontology for Cellular Component:", identifier)) + theme(plot.margin=unit(c(0.0,0.4,0.0,0.4), 'cm')))
     if (length(BeGo$ID) >1)
@@ -497,6 +547,37 @@ for (el in uniqVers_UP)
 
 dev.off()
 
+################################################################################
+#'*WRITE THE DFs TO EXCEL * 
+################################################################################
+
+write.xlsx2(MeDF_FULL,"MeDF_FULL.xlsx", row.names = TRUE)
+write.xlsx2(BeDF_FULL,"BeDF_FULL.xlsx", row.names = TRUE)
+write.xlsx2(CeDF_FULL,"CeDF_FULL.xlsx", row.names = TRUE)
+
+write.xlsx2(MeDF_DOWN,"MeDF_DOWN.xlsx", row.names = TRUE)
+write.xlsx2(BeDF_DOWN,"BeDF_DOWN.xlsx", row.names = TRUE)
+write.xlsx2(CeDF_DOWN,"CeDF_DOWN.xlsx", row.names = TRUE)
+
+write.xlsx2(MeDF_UP,"MeDF_UP.xlsx", row.names = TRUE)
+write.xlsx2(BeDF_UP,"BeDF_UP.xlsx", row.names = TRUE)
+write.xlsx2(CeDF_UP,"CeDF_UP.xlsx", row.names = TRUE)
+
+################################################################################
+#'*CREATE LOOKUP LISTS FROM VECTORS MEVEC, BEVEC, CEVEC * 
+################################################################################
+
+MeVec_UP
+BeVec_UP
+CeVec_UP
+
+MeVec_DOWN
+BeVec_DOWN
+CeVec_DOWN
+
+MeVec_FULL
+BeVec_FULL
+CeVec_FULL
 
 ################################################################################
 #'*PATHWAY ANALYSIS FOR DOWN * 
