@@ -1,5 +1,5 @@
 import pandas as pd
-import numpy as np 
+import numpy as np
 
 userinputDF = input('Please enter "up", "down", or "all":\n')
 optionsDF = ["up", "down", "all"]
