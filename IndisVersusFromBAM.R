@@ -577,6 +577,8 @@ write.xlsx2(CeDF_UP,"CeDF_UP.xlsx", row.names = FALSE)
 #'*LOOP OVER EACH GO TERM * 
 ################################################################################
 
+save.image("StartingGoPlots.RData")
+
 uniGO_UP <- unique(joinedDF_GO_UP$GOALL)
 
 MeDF_UP_GO <- data.frame(matrix(ncol = 0, nrow = 500 ))
@@ -669,6 +671,7 @@ for (el in uniqVers_UP)
 
 dev.off()
 
+save.image("FinishedUpGOplots.RData")
 
 uniGO_DOWN <- unique(joinedDF_GO_DOWN$GOALL)
 
@@ -762,6 +765,8 @@ for (el in uniqVers_DOWN)
 
 dev.off()
 
+save.image("FinishedDownGOplots.RData")
+
 uniGO_FULL <- unique(joinedDF_GO_FULL$GOALL)
 
 MeDF_FULL_GO <- data.frame(matrix(ncol = 0, nrow = 500 ))
@@ -853,21 +858,35 @@ for (el in uniqVers_ALL)
 }
 
 dev.off()
+save.image("FinishedallGOplots.RData")
 
 ################################################################################
-#'*WRITE THE DFs FOR PER GO TO EXCEL * 
+#'*WRITE THE DFs FOR PER GO TO FILE * 
 ################################################################################
 
 
-write.xlsx2(MeDF_FULL_GO,"MeDF_FULL_perGO.xlsx", row.names = FALSE)
-write.xlsx2(BeDF_FULL_GO,"BeDF_FULL_perGO.xlsx", row.names = FALSE)
-write.xlsx2(CeDF_FULL_GO,"CeDF_FULL_perGO.xlsx", row.names = FALSE)
+write.csv(MeDF_FULL_GO, "MeDF_FULL_perGO.csv", row.names = FALSE, na="")
+write.csv(BeDF_FULL_GO,"BeDF_FULL_perGO.csv", row.names = FALSE, na="")
+write.csv(CeDF_FULL_GO,"CeDF_FULL_perGO.csv", row.names = FALSE, na="")
 
-write.xlsx2(MeDF_DOWN_GO,"MeDF_DOWN_perGO.xlsx", row.names = FALSE)
-write.xlsx2(BeDF_DOWN_GO,"BeDF_DOWN_perGO.xlsx", row.names = FALSE)
-write.xlsx2(CeDF_DOWN_GO,"CeDF_DOWN_perGO.xlsx", row.names = FALSE)
+write.csv(MeDF_DOWN_GO,"MeDF_DOWN_perGO.csv", row.names = FALSE, na="")
+write.csv(BeDF_DOWN_GO,"BeDF_DOWN_perGO.csv", row.names = FALSE, na="")
+write.csv(CeDF_DOWN_GO,"CeDF_DOWN_perGO.csv", row.names = FALSE, na="")
 
-write.xlsx2(MeDF_UP_GO,"MeDF_UP_perGO.xlsx", row.names = FALSE)
-write.xlsx2(BeDF_UP_GO,"BeDF_UP_perGO.xlsx", row.names = FALSE)
-write.xlsx2(CeDF_UP_GO,"CeDF_UP_perGO.xlsx", row.names = FALSE)
+write.csv(MeDF_UP_GO, "MeDF_UP_perGO.csv", row.names = FALSE, na="")
+write.csv(BeDF_UP_GO,"BeDF_UP_perGO.csv", row.names = FALSE, na="")
+write.csv(CeDF_UP_GO,"CeDF_UP_perGO.csv", row.names = FALSE, na="")
+
+
+# write.xlsx2(MeDF_FULL_GO,"MeDF_FULL_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(BeDF_FULL_GO,"BeDF_FULL_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(CeDF_FULL_GO,"CeDF_FULL_perGO.xlsx", row.names = FALSE)
+
+# write.xlsx2(MeDF_DOWN_GO,"MeDF_DOWN_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(BeDF_DOWN_GO,"BeDF_DOWN_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(CeDF_DOWN_GO,"CeDF_DOWN_perGO.xlsx", row.names = FALSE)
+
+# write.xlsx2(MeDF_UP_GO,"MeDF_UP_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(BeDF_UP_GO,"BeDF_UP_perGO.xlsx", row.names = FALSE)
+# write.xlsx2(CeDF_UP_GO,"CeDF_UP_perGO.xlsx", row.names = FALSE)
 
