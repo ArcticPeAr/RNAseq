@@ -1,3 +1,4 @@
+
 import pandas as pd
 
 
@@ -86,22 +87,31 @@ print("Your available samples are:")
 for item in optionsVer:
     print(item)
 
-usVerInput1 = input('Please select first group to compare. E.g "C_1 or T_12"\n')
+usVerInput1 = input('Please select the first group to compare. E.g "C_1 or T_12"\n')
 usVerInput1 = usVerInput1.upper()
 while usVerInput1 not in optionsVer:
-    usVerInput1 = input('Error: remember: "C_1", not "C1"\n')
+    if len(usVerInput1) > 4:
+        splitted = usVerInput1.split("-")
+        if splitted[-1] in optionsVer:
+            usVerInput2 = splitted[-1]
+            usVerInput1 = splitted[0]
+        else:
+            usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
+    else:
+        usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
     
 
-
-usVerInput2 = input('Please select first group to compare. E.g "C_2 or T_11"\n')
-usVerInput2 = usVerInput2.upper()
-while usVerInput2 not in optionsVer or usVerInput1 == usVerInput2:
-    usVerInput2 = input('Error: remember: "T_2", not "T2 and first sample cannot be the same as second sample"\n')
+if 'usVerInput2' not in locals():
+    usVerInput2 = input('Please select the second group to compare. E.g "C_2 or T_11"\n')
+    usVerInput2 = usVerInput2.upper()
+    while usVerInput2 not in optionsVer or usVerInput1 == usVerInput2:
+        usVerInput2 = input('Error: remember: "T_2", not "T2 and first sample cannot be the same as second sample"\n')
     
 # while usVerInput2 == usVerInput1:
 #     usVerInput2 = input('Error: Second sample cannot be the same as first sample!\nPlease type new sample: \n')
 
-
+print(usVerInput1)
+print(usVerInput2)
 usVerStringF = f"{usVerInput1}-{usVerInput2}"
 usVerStringR = f"{usVerInput2}-{usVerInput1}"
 
@@ -225,73 +235,106 @@ stringsDF = [vals for vals in stringsInDFCol if stringsInDFCol.count(vals) > 1]
 stringsDF = list(set(stringsDF))
 
 
-print(f"The terms you have available for the versus {versus} are:\n")
-
-for itep in stringsDF:
-    print(itep)
-
-print("\n")
-
-userinputGO2 = input('Please enter GO term you are looking for:\n')
-while userinputGO2 not in stringsDF:
-    userinputGO2 = input('Error, remember: "endocytosis", not "Endocytosis"\n Are you sure you typed the term correctly?\n hint: You can just copy paste from above:\n')
+######################################################################################################
+#### Go term loop:
+######################################################################################################
 
 
-#Make list from userinput and columns matching that term
-down3List = []
-up3List = []
+userInputReGO = "g"
+while userInputReGO == "g":
+	print(f"The terms you have available for the versus {versus} are:\n")
 
-down3 = [col for col in down2.columns if userinputGO2 in col]
-for tem in down3:
-    dd = down2[down3].values.tolist()
-    down3List.append(dd)
+	for itep in stringsDF:
+	    print(itep)
+
+	print("\n")
+
+
+	userinputGO2 = input('Please enter GO term you are looking for:\n')
+	while userinputGO2 not in stringsDF:
+	    userinputGO2 = input('Error, remember: "endocytosis", not "Endocytosis"\n Are you sure you typed the term correctly?\n hint: You can just copy paste from above:\n')
+
+
+	#Make list from userinput and columns matching that term
+	down3List = []
+	up3List = []
+
+	down3 = [col for col in down2.columns if userinputGO2 in col]
+	for tem in down3:
+	    dd = down2[down3].values.tolist()
+	    down3List.append(dd)
+	 
+	up3 = [col for col in up2.columns if userinputGO2 in col]
+	for stem in up3:
+	    dd = up2[up3].values.tolist()
+	    up3List.append(dd)
+
+	flatUp3 = [item4 for sublist in up3List for item4 in sublist]
+	flatUp4 = [item4 for sublist in flatUp3 for item4 in sublist]
+
+	flatUPsansNA = list(dict.fromkeys(flatUp4))
+	flatUPsansNA2 = [item for item in flatUPsansNA if not(pd.isnull(item)) == True]
+
+
+	flatDown3 = [item4 for sublist in down3List for item4 in sublist]
+	flatDown4 = [item4 for sublist in flatDown3 for item4 in sublist]
+	flatDOWNsansNA = list(dict.fromkeys(flatDown4))
+	flatDOWNsansNA2 = [item for item in flatDOWNsansNA if not(pd.isnull(item)) == True]
+
+	print(f"Up-regulated genes for {userinputGO2} are:\n")
+	print(f"{flatUPsansNA2} \n")
+	print(f"Down-regulated genes for {userinputGO2} are:\n")
+	print(f"{flatDOWNsansNA2} \n")
+
+
+	######################################################################################################
+	#### Printing out  for GO
+	######################################################################################################
+
+
+	print("Do you want to save these lists")
+	userinputXL2 = input('Please enter yes or no":\n')
+	userinputXL2 = userinputXL2.lower()
+
+
+	while userinputXL2 not in optionsXL:
+	    print('Error, please type "yes", "y", "no" or "n"')
+	    userinputXL2 = input('Please enter yes or no":\n')
+	    userinputXL2 = userinputXL2.lower()
+
+	filename2 = f"{versus}_UPandDOWN_{userinputGO2}.xlsx"
+
+	if userinputXL2 == "yes" or userinputXL2 == "y":
+	    dfU2 = pd.DataFrame(flatUPsansNA) # to load less packages use pandas
+	    dfD2 = pd.DataFrame(flatDOWNsansNA) # to load less packages use pandas
+	    with pd.ExcelWriter(filename2) as writer:  
+	        dfU2.to_excel(writer, sheet_name='UP', index=False, header=False)
+	        dfD2.to_excel(writer, sheet_name='DOWN', index=False, header=False)
+	    print("File has been written")
+	    print("Thanks for using this little program!")
+	elif userinputXL2 == "no" or userinputXL2 == "n":
+	    print("Thanks for using this little program!")
+	    
+
+	userInputReGO = input('Press "g" you want to search for another GO term? (Anything else exits the program) \n')
+
+
+######################################################################################################
+#### Venn
+######################################################################################################
+
+"""
+"from matplotlib_venn import venn2, venn2_circles
+from matplotlib_venn import venn3, venn3_circles
+from matplotlib import pyplot as plt
+
+A = set(flatUPsansNA)
+B = set(flatDOWNsansNA)
+diagram = venn2([A, B], set_labels = ('Up-regulated', 'Down-regulated'))
+diagram.get_label_by_id("10").set_text("\n".join(A - B))
+diagram.get_label_by_id("11").set_text("\n".join(A & B))
+diagram.get_label_by_id("01").set_text("\n".join(B - A))
+plt.gcf().canvas.set_window_title('Fun With Venn Diagrams')  # Set window title
+plt.show()
+"""
  
-up3 = [col for col in up2.columns if userinputGO2 in col]
-for stem in up3:
-    dd = up2[up3].values.tolist()
-    up3List.append(dd)
-
-flatUp3 = [item4 for sublist in up3List for item4 in sublist]
-flatUp4 = [item4 for sublist in flatUp3 for item4 in sublist]
-flatUPsansNA = list(dict.fromkeys(flatUp4))
-
-
-
-flatDown3 = [item4 for sublist in down3List for item4 in sublist]
-flatDown4 = [item4 for sublist in flatDown3 for item4 in sublist]
-flatDOWNsansNA = list(dict.fromkeys(flatDown4))
-
-print(f"Up-regulated genes for {userinputGO2} are:\n")
-print(f"{flatUPsansNA} \n")
-print(f"Down-regulated genes for {userinputGO2} are:\n")
-print(f"{flatDOWNsansNA} \n")
-
-
-######################################################################################################
-#### Printing out  for GO
-######################################################################################################
-
-
-print("Do you want to save these lists")
-userinputXL2 = input('Please enter yes or no":\n')
-userinputXL2 = userinputXL2.lower()
-
-
-while userinputXL2 not in optionsXL:
-    print('Error, please type "yes", "y", "no" or "n"')
-    userinputXL2 = input('Please enter yes or no":\n')
-    userinputXL2 = userinputXL2.lower()
-
-filename2 = f"{versus}_UPandDOWN_{userinputGO2}.xlsx"
-
-if userinputXL2 == "yes" or userinputXL2 == "y":
-    dfU2 = pd.DataFrame(flatUPsansNA) # to load less packages use pandas
-    dfD2 = pd.DataFrame(flatDOWNsansNA) # to load less packages use pandas
-    with pd.ExcelWriter(filename2) as writer:  
-        dfU2.to_excel(writer, sheet_name='UP', index=False, header=False)
-        dfD2.to_excel(writer, sheet_name='DOWN', index=False, header=False)
-    print("File has been written")
-    print("Thanks for using this little program!")
-elif userinputXL2 == "no" or userinputXL2 == "n":
-    print("Thanks for using this little program!")
-    quit()
