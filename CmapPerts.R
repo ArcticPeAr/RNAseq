@@ -5,8 +5,85 @@
 library(cluequery)
 library(org.Hs.eg.db)
 
-UpList <- c('CD22', 'EPHA3', 'RAB4A', 'PICK1', 'ABCA7', 'ARC', 'CLIP3', 'LDLRAP1', 'VPS28', 'APPL2', 'ANKRD13B', 'ADRB2', 'LDLRAD4', 'CD4', 'CLCN3', 'CLCN4', 'ACKR2', 'GPER1', 'HSPD1', 'KCNQ1', 'KIFC1', 'PHB1', 'RAP1GAP', 'TLR4', 'DYSF', 'AP4M1', 'ZFYVE9', 'PTP4A3', 'INPP5F', 'GGA2', 'MLC1', 'ASTN2', 'BACE1', 'SNX5', 'TMEM230', 'NEURL1B', 'CLN6', 'PLEKHJ1', 'WLS', 'DNER', 'RNF157', 'PLD4', 'NAPEPLD', 'SNX30')
-DownList <- c('B2M', 'CLN3', 'PTPN1', 'RAB5A', 'NUMB', 'SPHK1', 'RUBCN', 'ZFYVE16', 'RAB31', 'RAB21', 'RABGEF1', 'EHD4', 'ANKFY1', 'RAB17', 'RIN3', 'APBB2', 'APP', 'SERPINB1', 'RAPGEF1', 'HLA-A', 'HLA-B', 'HLA-DRA', 'HLA-E', 'MR1', 'LNPEP', 'MME', 'SLC11A2', 'NTRK1', 'PML', 'MAP2K1', 'PSEN1', 'RAB1A', 'RET', 'SH3GL1', 'SIAH2', 'SIGLEC1', 'SNX2', 'TLR3', 'UVRAG', 'VCAM1', 'PTP4A1', 'FZD5', 'PDLIM4', 'NRP1', 'RAB29', 'ATP6V0D1', 'HGS', 'LIPG', 'LITAF', 'TOM1', 'STX6', 'IFITM3', 'EHD1', 'RFTN1', 'FKBP15', 'STX12', 'SGK3', 'PARM1', 'RPS6KC1', 'VPS41', 'LAMP3', 'VPS4A', 'DBNL', 'CD274', 'APH1A', 'VAC14', 'GRIPAP1', 'PMEPA1', 'ACKR3', 'ARRDC3', 'WDFY1', 'WDFY4', 'GPR107', 'ZFYVE28', 'SNX27', 'MVB12B', 'SLC15A4', 'SNX20', 'DTX3L', 'RASGEF1B', 'SAMD9L', 'MARCHF8', 'FGD2', 'ATP6V0D2', 'WASHC2C', 'WASHC2A')
+#Read in dataframes
+bdd <- read.csv("BeDF_DOWN_perGO.csv")
+cdd <- read.csv("CeDF_DOWN_perGO.csv")
+mdd <- read.csv("MeDF_DOWN_perGO.csv")
+
+bdu <- read.csv("BeDF_UP_perGO.csv")
+cdu <- read.csv("CeDF_UP_perGO.csv")
+mdu <- read.csv("MeDF_UP_perGO.csv")
+
+Samples <- c(
+"T_11",
+"T_8",
+"T_12",
+"C_7"
+)
+combos <- combn(Samples, 2, simplify = TRUE)
+
+comboVec <- c()
+#for column in combos create string of values and add to comboVec
+for (i in 1:ncol(combos)){
+  comboVec <- c(comboVec, paste(combos[,i], collapse = "."))
+}
+
+#make another vector of the same length as comboVec but with the opposite order of the samples
+comboVec2 <- c()
+for (i in 1:ncol(combos)){
+  comboVec2 <- c(comboVec2, paste(rev(combos[,i]), collapse = "."))
+}
+#merge comboVec and comboVec2
+comboVec <- c(comboVec, comboVec2)
+
+
+
+#merge bdd,cdd and mdd into one dataframe
+down <- rbind(bdd,cdd,mdd)
+#merge bdu,cdu and mdu into one dataframe
+up <- rbind(bdu,cdu,mdu)
+
+
+
+
+Opptak <- c(
+"phagocytosis",
+"endosome",
+"endocytosis",
+"early endosome",
+"endocytic vesicle",
+"transport vesicle"
+)
+
+#Create a vector of the GO terms to be used
+downOpptak <- down %>% select(contains(c(Opptak)))
+upOpptak <- up %>% select(contains(c(Opptak)))
+
+#
+downOpptak <- downOpptak %>% select(contains(c(comboVec)))
+upOpptakVs <-  upOpptak %>% select(contains(c(comboVec)))
+
+Degradering <- c(
+"proteolysis",
+"proteasome-mediated ubiquitin-dependent protein catabolic process",
+"ubiquitin-dependent protein catabolic process",
+"metallopeptidase activity",
+"lysosome",
+"endolysosome",
+"lysosomal protein catabolic process"
+)
+
+downDegradering <- down %>% select(contains(c(Degradering)))
+upDegradering <- up %>% select(contains(c(Degradering)))
+
+Inflammasjon <- c(
+"inflammasome complex",
+"neuroinflammatory response",
+"inflammatory response"
+)
+
+downInflammasjon <- down %>% select(contains(c(Inflammasjon)))
+upInflammasjon <- up %>% select(contains(c(Inflammasjon)))
 
 
 UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
@@ -18,7 +95,7 @@ DownList <- unique(DownList)
 pre_gmt <- clue_gmt_from_list(UpList, DownList, "Testing")
 
 submission_result <- clue_query_submit(
-    pre_gmt[["up"]], pre_gmt[["down"]], name="test34R"
+    pre_gmt[["up"]], pre_gmt[["down"]], name="testNew"
 )
 
 subID <- submission_result$result$job_id
