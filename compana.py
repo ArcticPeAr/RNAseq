@@ -15,11 +15,11 @@ def hasNum(string):
     return any(char.isdigit() for char in string)
 
 
-bdd = pd.read_csv("BeDF_DOWN_perGO.csv")
+bdd = pd.read_csv("BeDF_DOWN_perGO.csv", keep_default_na=False)
 bdd.columns = bdd.columns.str.lower()
-cdd = pd.read_csv("CeDF_DOWN_perGO.csv")
+cdd = pd.read_csv("CeDF_DOWN_perGO.csv", keep_default_na=False)
 cdd.columns = cdd.columns.str.lower()
-mdd = pd.read_csv("MeDF_DOWN_perGO.csv")
+mdd = pd.read_csv("MeDF_DOWN_perGO.csv", keep_default_na=False)
 mdd.columns = mdd.columns.str.lower()
 
 ######################################################################################################
@@ -49,11 +49,11 @@ optionsVerDown = list(dict.fromkeys(flatDownList))
 ####Find samples names UP:
 ######################################################################################################
 
-bdu = pd.read_csv("BeDF_UP_perGO.csv")
+bdu = pd.read_csv("BeDF_UP_perGO.csv", keep_default_na=False)
 bdu.columns = bdu.columns.str.lower()
-cdu = pd.read_csv("CeDF_UP_perGO.csv")
+cdu = pd.read_csv("CeDF_UP_perGO.csv", keep_default_na=False)
 cdu.columns = cdu.columns.str.lower()
-mdu = pd.read_csv("MeDF_UP_perGO.csv")
+mdu = pd.read_csv("MeDF_UP_perGO.csv", keep_default_na=False)
 mdu.columns = mdu.columns.str.lower()
 
 framesUp = [bdu, cdu, mdu]
