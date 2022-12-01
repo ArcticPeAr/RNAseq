@@ -134,6 +134,8 @@ clueList_Opptak_Down <- list()
 
 # For every value in anavec, find the up genes for opptak
 for (i in 1:length(anaVec)){
+    OpptakUp <- c()
+    OpptakDown <- c()
     downOpptakAna <- downOpptak %>% select(contains(c(anaVec[i])))
     upOpptakAna <- upOpptak %>% select(contains(c(anaVec[i])))
 
@@ -146,7 +148,7 @@ for (i in 1:length(anaVec)){
     OpptakDown <- unique(OpptakDown)
     #add "Down" to list item
     clueList_Opptak_Down[[anaVec[i]]] <- OpptakDown
-    OpptakDown <- c()
+    
     }
 
     for (column in colnames(upOpptakAna)){
@@ -158,7 +160,6 @@ for (i in 1:length(anaVec)){
     OpptakUp <- unique(OpptakUp)
     #add "Up" to list item
     clueList_Opptak_Up[[anaVec[i]]] <- OpptakUp
-    OpptakUp <- c()
     }
 }
 
@@ -166,7 +167,6 @@ for (i in 1:length(anaVec)){
 ################################################################################
 #DEGRADERING ClueList creation 
 ################################################################################
-
 downDegradering <- down %>% select(contains(c(Degradering)))
 upDegradering <- up %>% select(contains(c(Degradering)))
 
@@ -179,6 +179,8 @@ clueList_Degradering_Down <- list()
 
 # For every value in anavec, find the up genes for opptak
 for (i in 1:length(anaVec)){
+    DegraderingUp <- c()
+    DegraderingDown <- c()
     downDegraderingAna <- downDegradering %>% select(contains(c(anaVec[i])))
     upDegraderingAna <- upDegradering %>% select(contains(c(anaVec[i])))
 
@@ -191,7 +193,7 @@ for (i in 1:length(anaVec)){
     DegraderingDown <- unique(DegraderingDown)
     #add "Down" to list item
     clueList_Degradering_Down[[anaVec[i]]] <- DegraderingDown
-    DegraderingDown <- c()
+    
     }
 
     for (column in colnames(upDegraderingAna)){
@@ -203,7 +205,6 @@ for (i in 1:length(anaVec)){
     DegraderingUp <- unique(DegraderingUp)
     #add "Up" to list item
     clueList_Degradering_Up[[anaVec[i]]] <- DegraderingUp
-    DegraderingUp <- c()
     }
 }
 
@@ -226,6 +227,8 @@ clueList_Inflammasjon_Down <- list()
 
 # For every value in anavec, find the up genes for opptak
 for (i in 1:length(anaVec)){
+    InflammasjonUp <- c()
+    InflammasjonDown <- c()
     downInflammasjonAna <- downInflammasjon %>% select(contains(c(anaVec[i])))
     upInflammasjonAna <- upInflammasjon %>% select(contains(c(anaVec[i])))
 
@@ -238,7 +241,7 @@ for (i in 1:length(anaVec)){
     InflammasjonDown <- unique(InflammasjonDown)
     #add "Down" to list item
     clueList_Inflammasjon_Down[[anaVec[i]]] <- InflammasjonDown
-    InflammasjonDown <- c()
+    
     }
 
     for (column in colnames(upInflammasjonAna)){
@@ -250,7 +253,7 @@ for (i in 1:length(anaVec)){
     InflammasjonUp <- unique(InflammasjonUp)
     #add "Up" to list item
     clueList_Inflammasjon_Up[[anaVec[i]]] <- InflammasjonUp
-    InflammasjonUp <- c()
+    
     }
 }
 
@@ -273,6 +276,10 @@ for (i in 1:length(anaVec)){
 #ClueList_Inflammasjon_Up
 #ClueList_Inflammasjon_Down
 
+
+################################################################################
+#SENDING OPPTAK TO CLUE
+################################################################################
 #get list names from clueList_Opptak_Up
 listNamesOpptakUP <- names(clueList_Opptak_Up)
 listNamesOpptakDOWN <- names(clueList_Opptak_Down)
@@ -281,9 +288,6 @@ if (length(setdiff(listNamesOpptakUP, listNamesOpptakDOWN)>0)){
     stop()
 }
 
-################################################################################
-#SENDING OPPTAK TO CLUE
-################################################################################
 for (i in 1:length(listNamesOpptakUP)){
     tryCatch({
     namestringOpptak <- paste(listNamesOpptakUP[i], "Opptak", sep = "_")
@@ -291,7 +295,7 @@ for (i in 1:length(listNamesOpptakUP)){
     UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
     DownList <- clueList_Opptak_Down[[i]]
     DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, "Testing")
+    pre_gmt <- clue_gmt_from_list(UpList, DownList, "namestringOpptak")
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringOpptak
     )
@@ -301,6 +305,9 @@ for (i in 1:length(listNamesOpptakUP)){
 }
 
 
+################################################################################
+#SENDING DEGRADERING TO CLUE
+################################################################################
 listNamesDegraderingUP <- names(clueList_Degradering_Up)
 listNamesDegraderingDOWN <- names(clueList_Degradering_Down)
 if (length(setdiff(listNamesDegraderingUP, listNamesDegraderingDOWN)>0)){
@@ -308,9 +315,6 @@ if (length(setdiff(listNamesDegraderingUP, listNamesDegraderingDOWN)>0)){
     stop()
 }
 
-################################################################################
-#SENDING DEGRADERING TO CLUE
-################################################################################
 for (i in 1:length(listNamesDegraderingUP)){
     tryCatch({
     namestringDegradering <- paste(listNamesDegraderingUP[i], "Degradering", sep = "_")
@@ -318,7 +322,7 @@ for (i in 1:length(listNamesDegraderingUP)){
     UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
     DownList <- clueList_Degradering_Down[[i]]
     DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, "Testing")
+    pre_gmt <- clue_gmt_from_list(UpList, DownList, "namestringDegradering")
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringDegradering
     )
@@ -328,6 +332,9 @@ for (i in 1:length(listNamesDegraderingUP)){
 }
 
 
+################################################################################
+#SENDING INFLAMMASJON TO CLUE
+################################################################################
 listNamesInflammasjonUP <- names(clueList_Inflammasjon_Up)
 listNamesInflammasjonDOWN <- names(clueList_Inflammasjon_Down)
 if (length(setdiff(listNamesInflammasjonUP, listNamesInflammasjonDOWN)>0)){
@@ -335,9 +342,6 @@ if (length(setdiff(listNamesInflammasjonUP, listNamesInflammasjonDOWN)>0)){
     stop()
 }
 
-################################################################################
-#SENDING INFLAMMASJON TO CLUE
-################################################################################
 for (i in 1:length(listNamesInflammasjonUP)){
     tryCatch({
     namestringInflammasjon <- paste(listNamesInflammasjonUP[i], "Inflammasjon", sep = "_")
@@ -345,7 +349,7 @@ for (i in 1:length(listNamesInflammasjonUP)){
     UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
     DownList <- clueList_Inflammasjon_Down[[i]]
     DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, "Testing")
+    pre_gmt <- clue_gmt_from_list(UpList, DownList, namestringInflammasjon)
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringInflammasjon
     )
@@ -357,5 +361,5 @@ for (i in 1:length(listNamesInflammasjonUP)){
 
 
 #Get the results from CLUE
-clue_query_wait(submission_result, interval = 120, timeout = 1200)¨
+clue_query_wait(submission_result, interval = 120, timeout = 1200)
 
