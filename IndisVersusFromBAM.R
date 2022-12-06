@@ -1,4 +1,31 @@
-######Read libraries####
+###TODO:
+#CREATE PLOTS FOR GO TERMS COLLECTED:
+# Opptak <- c(
+# "phagocytosis",
+# "endosome",
+# "endocytosis",
+# "early.endosome",
+# "endocytic.vesicle",
+# "transport.vesicle"
+# )
+# Degradering <- c(
+# "proteolysis",
+# "proteasome-mediated.ubiquitin-dependent.protein.catabolic.process",
+# "ubiquitin-dependent.protein.catabolic.process",
+# "metallopeptidase.activity",
+# "lysosome",
+# "endolysosome",
+# "lysosomal.protein.catabolic.process"
+# )
+# Inflammasjon <- c(
+# "inflammasome.complex",
+# "neuroinflammatory.response",
+# "inflammatory.response",
+# "autophagy"
+# )
+
+
+# ######Read libraries####
 library(edgeR)
 library(xlsx)
 library(tidyverse)
