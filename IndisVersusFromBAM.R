@@ -132,7 +132,7 @@ for (versus in versuses)
   TippyTopGeneR2C[["Versus"]] <- versVec
   TippyTopGeneDF_ALL <- rbind(TippyTopGeneDF_ALL, TippyTopGeneR2C)
 }
-
+write.csv(TippyTopGeneDF_ALL, file = "/media/petear/SharedPart/TippyTopGeneDF_ALL.csv")
 
 ################################################################################
 #'*TORMODS GO TERMS <3*
