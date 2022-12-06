@@ -22,6 +22,9 @@ up <- rbind(bdu,cdu,mdu)
 down[is.na(down)] <- ""
 up[is.na(up)] <- ""
 
+#Read in TippyTopGeneDF_ALL
+TippyTopGeneDF_ALL <- read.csv("TippyTopGeneDF_ALL.csv")
+
 ################################################################################
 #CREATE VECTORS OF VERSUSES
 #ALL vs C7
@@ -29,7 +32,7 @@ up[is.na(up)] <- ""
 #LOWEST VS HIGHEST DEGRADETION
 #LOWEST VS HIGHEST CLEARANCE
 ################################################################################
-
+#Special cases to be investigated
 OpptakVec <- c("T_11.T_12")
 OpptakVec2 <- c("T_12.T_11")
 #DegradationVec <- c("T_11","T_12")  #Same as OpptakVec
@@ -41,7 +44,7 @@ VersVec <- c(OpptakVec,OpptakVec2)
 ################################################################################
 #CREATE VECTORS OF VERSUSES
 ################################################################################
-
+#General cases to be investigated
 TestVec <- c("C_7")
 
 Samples <- c(
