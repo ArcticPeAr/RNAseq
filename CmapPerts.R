@@ -5,6 +5,7 @@
 library(cluequery)
 library(org.Hs.eg.db)
 library(dplyr)
+library(stringr)
 #Read in dataframes
 bdd <- read.csv("BeDF_DOWN_perGO.csv")
 cdd <- read.csv("CeDF_DOWN_perGO.csv")
@@ -48,6 +49,7 @@ VersVec <- c(OpptakVec,OpptakVec2)
 TestVec <- c("C_7")
 
 Samples <- c(
+"T_5"
 "T_8",
 "T_12",
 "T_11"
@@ -120,6 +122,8 @@ Inflammasjon <- c(
 "inflammatory.response",
 "autophagy"
 )
+
+Clearance <- c(Opptak, Degradering)
 #Make dataframes smaller by removing columns with no relation to the terms:
 
 ################################################################################
@@ -294,11 +298,29 @@ if (length(setdiff(listNamesOpptakUP, listNamesOpptakDOWN)>0)){
 for (i in 1:length(listNamesOpptakUP)){
     tryCatch({
     namestringOpptak <- paste(listNamesOpptakUP[i], "Opptak", sep = "_")
+    nameString <- gsub(".",  "-", listNamesOpptakUP[i], fixed = TRUE)
+    SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
+    SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
+    #
     UpList <- clueList_Opptak_Up[[i]]
-    UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
+    UpListDF <- as.data.frame(mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL"))
+    colnames(UpListDF) <- "ENTREZID"
+    UpListDF$Symbol <- rownames(UpListDF)
+    UpJoined <- inner_join(UpListDF, SpecTT, by="ENTREZID")
+    UpJoined <- UpJoined[order(UpJoined$logFC, decreasing=TRUE),]
+    #if (nrow(UpJoined) > 150){
+    #    UpJoined <- UpJoined[1:150,]
+    #}
     DownList <- clueList_Opptak_Down[[i]]
-    DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, "namestringOpptak")
+    DownListDF <- as.data.frame(mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL"))
+    colnames(DownListDF) <- "ENTREZID"
+    DownListDF$Symbol <- rownames(DownListDF)
+    DownJoined <- inner_join(DownListDF, SpecTT, by="ENTREZID")
+    DownJoined <- DownJoined[order(DownJoined$logFC, decreasing=FALSE),]
+    #if (nrow(DownJoined) > 150){
+    #    DownJoined <- DownJoined[1:150,]
+    #}
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringOpptak)
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringOpptak
     )
@@ -321,11 +343,29 @@ if (length(setdiff(listNamesDegraderingUP, listNamesDegraderingDOWN)>0)){
 for (i in 1:length(listNamesDegraderingUP)){
     tryCatch({
     namestringDegradering <- paste(listNamesDegraderingUP[i], "Degradering", sep = "_")
+    nameString <- gsub(".",  "-", listNamesDegraderingUP[i], fixed = TRUE)
+    SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
+    SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
+    #
     UpList <- clueList_Degradering_Up[[i]]
-    UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
+    UpListDF <- as.data.frame(mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL"))
+    colnames(UpListDF) <- "ENTREZID"
+    UpListDF$Symbol <- rownames(UpListDF)
+    UpJoined <- inner_join(UpListDF, SpecTT, by="ENTREZID")
+    UpJoined <- UpJoined[order(UpJoined$logFC, decreasing=TRUE),]
+    #if (nrow(UpJoined) > 150){
+    #    UpJoined <- UpJoined[1:150,]
+    #}
     DownList <- clueList_Degradering_Down[[i]]
-    DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, "namestringDegradering")
+    DownListDF <- as.data.frame(mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL"))
+    colnames(DownListDF) <- "ENTREZID"
+    DownListDF$Symbol <- rownames(DownListDF)
+    DownJoined <- inner_join(DownListDF, SpecTT, by="ENTREZID")
+    DownJoined <- DownJoined[order(DownJoined$logFC, decreasing=FALSE),]
+    #if (nrow(DownJoined) > 150){
+    #    DownJoined <- DownJoined[1:150,]
+    #}
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringDegradering)
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringDegradering
     )
@@ -348,11 +388,29 @@ if (length(setdiff(listNamesInflammasjonUP, listNamesInflammasjonDOWN)>0)){
 for (i in 1:length(listNamesInflammasjonUP)){
     tryCatch({
     namestringInflammasjon <- paste(listNamesInflammasjonUP[i], "Inflammasjon", sep = "_")
+    nameString <- gsub(".",  "-", listNamesInflammasjonUP[i], fixed = TRUE)
+    SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
+    SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
+    #
     UpList <- clueList_Inflammasjon_Up[[i]]
-    UpList <- mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL")
+    UpListDF <- as.data.frame(mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL"))
+    colnames(UpListDF) <- "ENTREZID"
+    UpListDF$Symbol <- rownames(UpListDF)
+    UpJoined <- inner_join(UpListDF, SpecTT, by="ENTREZID")
+    UpJoined <- UpJoined[order(UpJoined$logFC, decreasing=TRUE),]
+    #if (nrow(UpJoined) > 150){
+    #    UpJoined <- UpJoined[1:150,]
+    #}
     DownList <- clueList_Inflammasjon_Down[[i]]
-    DownList <- mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL")
-    pre_gmt <- clue_gmt_from_list(UpList, DownList, namestringInflammasjon)
+    DownListDF <- as.data.frame(mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL"))
+    colnames(DownListDF) <- "ENTREZID"
+    DownListDF$Symbol <- rownames(DownListDF)
+    DownJoined <- inner_join(DownListDF, SpecTT, by="ENTREZID")
+    DownJoined <- DownJoined[order(DownJoined$logFC, decreasing=FALSE),]
+    #if (nrow(DownJoined) > 150){
+    #    DownJoined <- DownJoined[1:150,]
+    #}
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringInflammasjon)
     submission_result <- clue_query_submit(
         pre_gmt[["up"]], pre_gmt[["down"]], name=namestringInflammasjon
     )
