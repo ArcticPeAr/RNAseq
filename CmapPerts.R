@@ -49,7 +49,7 @@ VersVec <- c(OpptakVec,OpptakVec2)
 TestVec <- c("C_7")
 
 Samples <- c(
-"T_5"
+"T_5",
 "T_8",
 "T_12",
 "T_11"
@@ -297,7 +297,8 @@ if (length(setdiff(listNamesOpptakUP, listNamesOpptakDOWN)>0)){
 
 for (i in 1:length(listNamesOpptakUP)){
     tryCatch({
-    namestringOpptak <- paste(listNamesOpptakUP[i], "Opptak", sep = "_")
+    namestringOpptakF <- paste(listNamesOpptakUP[i], "Opptak", sep = "_")
+    namestringOpptakR <- paste(listNamesOpptakUP[i], "Opptak_Reversed", sep = "_")
     nameString <- gsub(".",  "-", listNamesOpptakUP[i], fixed = TRUE)
     SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
     SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
@@ -320,9 +321,13 @@ for (i in 1:length(listNamesOpptakUP)){
     #if (nrow(DownJoined) > 150){
     #    DownJoined <- DownJoined[1:150,]
     #}
-    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringOpptak)
+    pre_gmtF <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringOpptakF)
     submission_result <- clue_query_submit(
-        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringOpptak
+        pre_gmtF[["up"]], pre_gmt[["down"]], name=namestringOpptakF
+    )
+    pre_gmtR <- clue_gmt_from_list(DownJoined$ENTREZID, UpJoined$ENTREZID, namestringOpptakR)
+    submission_result <- clue_query_submit(
+        pre_gmtR[["up"]], pre_gmtR[["down"]], name=namestringOpptakR
     )
 }, error = function(e) {
     print(e)
@@ -342,7 +347,8 @@ if (length(setdiff(listNamesDegraderingUP, listNamesDegraderingDOWN)>0)){
 
 for (i in 1:length(listNamesDegraderingUP)){
     tryCatch({
-    namestringDegradering <- paste(listNamesDegraderingUP[i], "Degradering", sep = "_")
+    namestringDegraderingF <- paste(listNamesDegraderingUP[i], "Degradering", sep = "_")
+    namestringDegraderingR <- paste(listNamesDegraderingUP[i], "Degradering_Reversed", sep = "_")
     nameString <- gsub(".",  "-", listNamesDegraderingUP[i], fixed = TRUE)
     SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
     SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
@@ -365,9 +371,13 @@ for (i in 1:length(listNamesDegraderingUP)){
     #if (nrow(DownJoined) > 150){
     #    DownJoined <- DownJoined[1:150,]
     #}
-    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringDegradering)
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringDegraderingF)
     submission_result <- clue_query_submit(
-        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringDegradering
+        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringDegraderingF
+    )
+    pre_gmtR <- clue_gmt_from_list(DownJoined$ENTREZID, UpJoined$ENTREZID, namestringDegraderingR)
+    submission_result <- clue_query_submit(
+        pre_gmtR[["up"]], pre_gmtR[["down"]], name=namestringDegraderingR
     )
 }, error = function(e) {
     print(e)
@@ -387,7 +397,8 @@ if (length(setdiff(listNamesInflammasjonUP, listNamesInflammasjonDOWN)>0)){
 
 for (i in 1:length(listNamesInflammasjonUP)){
     tryCatch({
-    namestringInflammasjon <- paste(listNamesInflammasjonUP[i], "Inflammasjon", sep = "_")
+    namestringInflammasjonF <- paste(listNamesInflammasjonUP[i], "Inflammasjon", sep = "_")
+    namestringInflammasjonR <- paste(listNamesInflammasjonUP[i], "Inflammasjon_Reversed", sep = "_")
     nameString <- gsub(".",  "-", listNamesInflammasjonUP[i], fixed = TRUE)
     SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
     SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
@@ -410,9 +421,62 @@ for (i in 1:length(listNamesInflammasjonUP)){
     #if (nrow(DownJoined) > 150){
     #    DownJoined <- DownJoined[1:150,]
     #}
-    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringInflammasjon)
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringInflammasjonF)
     submission_result <- clue_query_submit(
-        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringInflammasjon
+        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringInflammasjonF
+    )
+    pre_gmtR <- clue_gmt_from_list(DownJoined$ENTREZID, UpJoined$ENTREZID, namestringInflammasjonR)
+    submission_result <- clue_query_submit(
+        pre_gmtR[["up"]], pre_gmtR[["down"]], name=namestringInflammasjonR
+    )
+}, error = function(e) {
+    print(e)
+})
+}
+
+################################################################################
+#SENDING CLEARANCE TO CLUE
+################################################################################
+listNamesClearanceUP <- names(clueList_Clearance_Up)
+listNamesClearanceDOWN <- names(clueList_Clearance_Down)
+if (length(setdiff(listNamesClearanceUP, listNamesClearanceDOWN)>0)){
+    print("CLEARANCELISTENE are not the same")
+    stop()
+}
+
+for (i in 1:length(listNamesClearanceUP)){
+    tryCatch({
+    namestringClearanceF <- paste(listNamesClearanceUP[i], "Clearance", sep = "_")
+    namestringClearanceR <- paste(listNamesClearanceUP[i], "Clearance_Reversed", sep = "_")
+    nameString <- gsub(".",  "-", listNamesClearanceUP[i], fixed = TRUE)
+    SpecTT <- TippyTopGeneDF_ALL %>% filter(Versus == nameString)
+    SpecTT$ENTREZID <- as.character(SpecTT$ENTREZID)
+    #
+    UpList <- clueList_Clearance_Up[[i]]
+    UpListDF <- as.data.frame(mapIds(org.Hs.eg.db, UpList, "ENTREZID", "SYMBOL"))
+    colnames(UpListDF) <- "ENTREZID"
+    UpListDF$Symbol <- rownames(UpListDF)
+    UpJoined <- inner_join(UpListDF, SpecTT, by="ENTREZID")
+    UpJoined <- UpJoined[order(UpJoined$logFC, decreasing=TRUE),]
+    #if (nrow(UpJoined) > 150){
+    #    UpJoined <- UpJoined[1:150,]
+    #}
+    DownList <- clueList_Clearance_Down[[i]]
+    DownListDF <- as.data.frame(mapIds(org.Hs.eg.db, DownList, "ENTREZID", "SYMBOL"))
+    colnames(DownListDF) <- "ENTREZID"
+    DownListDF$Symbol <- rownames(DownListDF)
+    DownJoined <- inner_join(DownListDF, SpecTT, by="ENTREZID")
+    DownJoined <- DownJoined[order(DownJoined$logFC, decreasing=FALSE),]
+    #if (nrow(DownJoined) > 150){
+    #    DownJoined <- DownJoined[1:150,]
+    #}
+    pre_gmt <- clue_gmt_from_list(UpJoined$ENTREZID, DownJoined$ENTREZID, namestringClearanceF)
+    submission_result <- clue_query_submit(
+        pre_gmt[["up"]], pre_gmt[["down"]], name=namestringClearanceF
+    )
+    pre_gmtR <- clue_gmt_from_list(DownJoined$ENTREZID, UpJoined$ENTREZID, namestringClearanceR)
+    submission_result <- clue_query_submit(
+        pre_gmtR[["up"]], pre_gmtR[["down"]], name=namestringClearanceR
     )
 }, error = function(e) {
     print(e)
