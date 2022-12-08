@@ -264,6 +264,49 @@ for (i in 1:length(anaVec)){
     }
 }
 
+################################################################################
+#CLEARANCE ClueList creation
+################################################################################
+downClearance <- down %>% select(contains(c(Clearance)))
+upClearance <- up %>% select(contains(c(Clearance)))
+
+ClearanceUp <- c()
+clueList_Clearance_Up <- list()
+
+ClearanceDown <- c()
+clueList_Clearance_Down <- list()
+
+# For every value in anavec, find the up genes for opptak
+for (i in 1:length(anaVec)){
+    ClearanceUp <- c()
+    ClearanceDown <- c()
+    downClearanceAna <- downClearance %>% select(contains(c(anaVec[i])))
+    upClearanceAna <- upClearance %>% select(contains(c(anaVec[i])))
+
+    for (column in colnames(downClearanceAna)){
+        for (row in 1:nrow(downClearanceAna)){
+            if (downClearanceAna[row, column] != ""){
+                ClearanceDown <- c(ClearanceDown, downClearanceAna[row, column])
+            }
+        }
+    ClearanceDown <- unique(ClearanceDown)
+    #add "Down" to list item
+    clueList_Clearance_Down[[anaVec[i]]] <- ClearanceDown
+    
+    }
+
+    for (column in colnames(upClearanceAna)){
+        for (row in 1:nrow(upClearanceAna)){
+            if (upClearanceAna[row, column] != ""){
+                ClearanceUp <- c(ClearanceUp, upClearanceAna[row, column])
+            }        
+        }
+    ClearanceUp <- unique(ClearanceUp)
+    #add "Up" to list item
+    clueList_Clearance_Up[[anaVec[i]]] <- ClearanceUp
+    
+    }
+}
 
 #downOpptakVS <- downOpptak %>% select(contains(c(anaVec)))
 #upOpptakVS <-  upOpptak %>% select(contains(c(anaVec)))
