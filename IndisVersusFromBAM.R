@@ -165,7 +165,7 @@ write.csv(TippyTopGeneDF_ALL, file = "/media/petear/SharedPart/TippyTopGeneDF_AL
 #'*TORMODS GO TERMS <3*
 ################################################################################
 
-wantedGo <- read.xlsx2("/media/petear/SharedPart/wantedGo.xlsx", sheetIndex = 1)
+wantedGo <- read.xlsx2("/home/petear/wantedGo.xlsx", sheetIndex = 1)
 wantGoVec <- c(wantedGo$goID)
 
 
