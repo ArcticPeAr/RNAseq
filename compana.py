@@ -14,6 +14,38 @@ def wrap_labels(ax, width):
 def hasNum(string):
     return any(char.isdigit() for char in string)
 
+######################################################################################################
+####Premade clusters:
+######################################################################################################
+Opptak <- c(
+"phagocytosis",
+"endosome",
+"endocytosis",
+"early.endosome",
+"endocytic.vesicle",
+"transport.vesicle"
+)
+Degradering <- c(
+"proteolysis",
+"proteasome-mediated.ubiquitin-dependent.protein.catabolic.process",
+"ubiquitin-dependent.protein.catabolic.process",
+"metallopeptidase.activity",
+"lysosome",
+"endolysosome",
+"lysosomal.protein.catabolic.process"
+)
+Inflammasjon <- c(
+"inflammasome.complex",
+"neuroinflammatory.response",
+"inflammatory.response",
+"autophagy"
+)
+Clearance <- c(Opptak, Degradering)
+
+
+######################################################################################################
+####Find samples names DOWN:
+######################################################################################################
 
 bdd = pd.read_csv("BeDF_DOWN_perGO.csv", dtype = "str")
 bdd.columns = bdd.columns.str.lower()
@@ -21,10 +53,6 @@ cdd = pd.read_csv("CeDF_DOWN_perGO.csv", dtype = "str")
 cdd.columns = cdd.columns.str.lower()
 mdd = pd.read_csv("MeDF_DOWN_perGO.csv", dtype = "str")
 mdd.columns = mdd.columns.str.lower()
-
-######################################################################################################
-####Find samples names DOWN:
-######################################################################################################
 
 framesDown = [bdd, cdd, mdd]
 down = pd.concat(framesDown   )
