@@ -3,44 +3,57 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 import seaborn as sns
-def wrap_labels(ax, width):
-    for label in ax.get_yticklabels():
-        label.set_ha("right")
-        label.set_wrap(True)
-        label.set_width(width)
+import openpyxl
 
 
-#check if string has numbers func 
-def hasNum(string):
-    return any(char.isdigit() for char in string)
+# def wrap_labels(ax, width):
+#     for label in ax.get_yticklabels():
+#         label.set_ha("right")
+#         label.set_wrap(True)
+#         label.set_width(width)
+
+
+# #check if string has numbers func 
+# def hasNum(string):
+#     return any(char.isdigit() for char in string)
 
 ######################################################################################################
-####Premade clusters:
+####Premade GO groups from excel file and make dictionary of each column with column name as key   
 ######################################################################################################
-Opptak <- c(
-"phagocytosis",
-"endosome",
-"endocytosis",
-"early.endosome",
-"endocytic.vesicle",
-"transport.vesicle"
-)
-Degradering <- c(
-"proteolysis",
-"proteasome-mediated.ubiquitin-dependent.protein.catabolic.process",
-"ubiquitin-dependent.protein.catabolic.process",
-"metallopeptidase.activity",
-"lysosome",
-"endolysosome",
-"lysosomal.protein.catabolic.process"
-)
-Inflammasjon <- c(
-"inflammasome.complex",
-"neuroinflammatory.response",
-"inflammatory.response",
-"autophagy"
-)
-Clearance <- c(Opptak, Degradering)
+
+#Function accepts a dataframe of GO terms and returns a dictionary of GO terms with the column name as the key. If the first value of a column is the name of another column, the function will add the values of that column with the values of the other columns in that column to the dictionary.
+#Returns a dictionary of GO terms with the column name as the key
+Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
+def IdentifyClusteredGO(GOgroups):
+    #check first value of each column contains a string that corresponds to a previous column name. If so, add the first column name to dictionary as key
+    multiClustDict = {}
+    FinalDict = {}
+    for col in GOgroups.columns:
+        colDF = GOgroups.loc[0, col]
+        if colDF in GOgroups.columns:
+            colList = GOgroups[col].tolist()
+            colList = [x for x in colList if x == x]
+            multiClustDict[col] = colList
+        else:
+            goList = GOgroups[col].tolist()
+            ColumnValueList1 = []
+            for item in goList:
+                ColumnValueList1.append(item)
+            FinalDict[col] = ColumnValueList1
+    #Get the values in the columns corresponding to the lists in the dictionary
+    ColumnValueList = []
+    for key in multiClustDict:
+        for value in multiClustDict[key]:
+            tempList = GOgroups[value].tolist()
+            tempList = [x for x in tempList if x == x]
+            for item in tempList:
+                ColumnValueList.append(item)
+            FinalDict[key] = ColumnValueList
+    return FinalDict
+
+
+
+
 
 
 ######################################################################################################
@@ -129,6 +142,45 @@ optionsVer = list(set(optionsVer))
 #### Starting input
 ######################################################################################################
 
+def presentSamples():
+    
+    print('The following samples are available for comparison:\n')
+    for i in optionsVer:
+        i = i.upper()
+        print(i)
+    print('\n')
+
+
+#Function to get user input on which samples to compare
+def getSampleInput():
+    usVerInput1 = input('Please select the first group to compare. E.g "C_1 or T_12"\n')
+    usVerInput1 = usVerInput1.lower()
+    while usVerInput1 not in optionsVer:
+        if len(usVerInput1) > 4:
+            splitted = usVerInput1.split("-")
+            if splitted[-1] in optionsVer:
+                usVerInput2 = splitted[-1]
+                usVerInput2 = usVerInput2.lower()
+                usVerInput1 = splitted[0]
+                usVerInput1 = usVerInput1.lower()
+            else:
+                usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
+                usVerInput1 = usVerInput1.lower()
+        else:
+            usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
+            usVerInput1 = usVerInput1.lower()
+
+    if len(usVerInput1) > 4:
+        splitted = usVerInput1.split("-")
+        usVerInput2 = splitted[-1]
+        usVerInput2 = usVerInput2.lower()
+        usVerInput1 = splitted[0]
+        usVerInput1 = usVerInput1.lower()
+
+
+    crop=in_w/3:in_h:in_w/3:0,scale=iw:ih
+    crop=in_w/3:in_h:in_w/3:0,scale=iw:ih
+
 print("Your available samples are:")
 for item in optionsVer:
     item = item.upper()
@@ -193,7 +245,7 @@ for (columnName, columnData) in down2.iteritems():
     geneListDown.append(list_no_nan)
 
 flatDown = [item for sublist in geneListDown for item in sublist]
-
+flatDown = flatDown.sort()
 #UP
 for (columnName, columnData) in up2.iteritems():
     da = columnData.tolist()
@@ -201,7 +253,7 @@ for (columnName, columnData) in up2.iteritems():
     geneListUp.append(list_no_nan)
 
 flatUp = [item for sublist in geneListUp for item in sublist]
-
+flatUp = flatUp.sort()
 ######################################################################################################
 #### Printing lists
 ######################################################################################################
@@ -331,13 +383,13 @@ while userInputReGO == "g":
 
     flatUPsansNA = list(dict.fromkeys(flatUp4))
     flatUPsansNA2 = [item for item in flatUPsansNA if not(pd.isnull(item)) == True]
-
+    flatUPsansNA2 = flatUPsansNA2.sort()
 
     flatDown3 = [item4 for sublist in down3List for item4 in sublist]
     flatDown4 = [item4 for sublist in flatDown3 for item4 in sublist]
     flatDOWNsansNA = list(dict.fromkeys(flatDown4))
     flatDOWNsansNA2 = [item for item in flatDOWNsansNA if not(pd.isnull(item)) == True]
-
+    flatDOWNsansNA2 = flatDOWNsansNA2.sort()
     print(f"Up-regulated genes for {userinputGO2} are:\n")
     print(f"{flatUPsansNA2} \n")
     print(f"Down-regulated genes for {userinputGO2} are:\n")
