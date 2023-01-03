@@ -23,7 +23,7 @@ import openpyxl
 
 #Function accepts a dataframe of GO terms and returns a dictionary of GO terms with the column name as the key. If the first value of a column is the name of another column, the function will add the values of that column with the values of the other columns in that column to the dictionary.
 #Returns a dictionary of GO terms with the column name as the key
-#Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
+Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
 def IdentifyClusteredGO(GOgroups):
     #check first value of each column contains a string that corresponds to a previous column name. If so, add the first column name to dictionary as key
     multiClustDict = {}
@@ -243,7 +243,7 @@ for (columnName, columnData) in down2.iteritems():
     geneListDown.append(list_no_nan)
 
 flatDown = [item for sublist in geneListDown for item in sublist]
-flatDown = flatDown.sort()
+flatDown.sort()
 #UP
 for (columnName, columnData) in up2.iteritems():
     da = columnData.tolist()
@@ -251,7 +251,7 @@ for (columnName, columnData) in up2.iteritems():
     geneListUp.append(list_no_nan)
 
 flatUp = [item for sublist in geneListUp for item in sublist]
-flatUp = flatUp.sort()
+flatUp.sort()
 ######################################################################################################
 #### Printing lists
 ######################################################################################################
