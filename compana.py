@@ -23,7 +23,7 @@ import openpyxl
 
 #Function accepts a dataframe of GO terms and returns a dictionary of GO terms with the column name as the key. If the first value of a column is the name of another column, the function will add the values of that column with the values of the other columns in that column to the dictionary.
 #Returns a dictionary of GO terms with the column name as the key
-Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
+#Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
 def IdentifyClusteredGO(GOgroups):
     #check first value of each column contains a string that corresponds to a previous column name. If so, add the first column name to dictionary as key
     multiClustDict = {}
@@ -178,8 +178,6 @@ def getSampleInput():
         usVerInput1 = usVerInput1.lower()
 
 
-    crop=in_w/3:in_h:in_w/3:0,scale=iw:ih
-    crop=in_w/3:in_h:in_w/3:0,scale=iw:ih
 
 print("Your available samples are:")
 for item in optionsVer:
@@ -339,6 +337,7 @@ for ites in flatGO:
 stringsInDFCol = stringsInDFColUP + stringsInDFColDOWN
 stringsDF = [vals for vals in stringsInDFCol if stringsInDFCol.count(vals) > 1]
 stringsDF = list(set(stringsDF))
+stringsDF.sort()
 
 
 ######################################################################################################
@@ -349,7 +348,7 @@ goDict ={}
 
 userInputReGO = "g"
 while userInputReGO == "g":
-    print(f"The terms you have available for the versus {versus} are:\n")
+    print(f"The terms you have available for the versus {versUpper} are:\n")
 
     for itep in stringsDF:
         print(itep)
