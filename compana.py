@@ -1,29 +1,28 @@
-####Library imports
+ ####Library imports
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 import seaborn as sns
-import openpyxl
+def wrap_labels(ax, width):
+    for label in ax.get_yticklabels():
+        label.set_ha("right")
+        label.set_wrap(True)
+        label.set_width(width)
 
 
-# def wrap_labels(ax, width):
-#     for label in ax.get_yticklabels():
-#         label.set_ha("right")
-#         label.set_wrap(True)
-#         label.set_width(width)
+#check if string has numbers func 
+def hasNum(string):
+    return any(char.isdigit() for char in string)
 
-
-# #check if string has numbers func 
-# def hasNum(string):
-#     return any(char.isdigit() for char in string)
-
+def removeNANs(list):
+    return [x for x in list if x == x]
 ######################################################################################################
 ####Premade GO groups from excel file and make dictionary of each column with column name as key   
 ######################################################################################################
 
 #Function accepts a dataframe of GO terms and returns a dictionary of GO terms with the column name as the key. If the first value of a column is the name of another column, the function will add the values of that column with the values of the other columns in that column to the dictionary.
 #Returns a dictionary of GO terms with the column name as the key
-Groups = pd.read_excel("GOGroupings.xlsx", dtype = "str")
+
 def IdentifyClusteredGO(GOgroups):
     #check first value of each column contains a string that corresponds to a previous column name. If so, add the first column name to dictionary as key
     multiClustDict = {}
@@ -49,8 +48,10 @@ def IdentifyClusteredGO(GOgroups):
             for item in tempList:
                 ColumnValueList.append(item)
             FinalDict[key] = ColumnValueList
+    #remove nan values from lists
+    for key in FinalDict:
+        FinalDict[key] = [x for x in FinalDict[key] if x == x]
     return FinalDict
-
 
 
 
@@ -142,43 +143,6 @@ optionsVer = list(set(optionsVer))
 #### Starting input
 ######################################################################################################
 
-def presentSamples():
-    
-    print('The following samples are available for comparison:\n')
-    for i in optionsVer:
-        i = i.upper()
-        print(i)
-    print('\n')
-
-
-#Function to get user input on which samples to compare
-def getSampleInput():
-    usVerInput1 = input('Please select the first group to compare. E.g "C_1 or T_12"\n')
-    usVerInput1 = usVerInput1.lower()
-    while usVerInput1 not in optionsVer:
-        if len(usVerInput1) > 4:
-            splitted = usVerInput1.split("-")
-            if splitted[-1] in optionsVer:
-                usVerInput2 = splitted[-1]
-                usVerInput2 = usVerInput2.lower()
-                usVerInput1 = splitted[0]
-                usVerInput1 = usVerInput1.lower()
-            else:
-                usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
-                usVerInput1 = usVerInput1.lower()
-        else:
-            usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
-            usVerInput1 = usVerInput1.lower()
-
-    if len(usVerInput1) > 4:
-        splitted = usVerInput1.split("-")
-        usVerInput2 = splitted[-1]
-        usVerInput2 = usVerInput2.lower()
-        usVerInput1 = splitted[0]
-        usVerInput1 = usVerInput1.lower()
-
-
-
 print("Your available samples are:")
 for item in optionsVer:
     item = item.upper()
@@ -243,7 +207,7 @@ for (columnName, columnData) in down2.iteritems():
     geneListDown.append(list_no_nan)
 
 flatDown = [item for sublist in geneListDown for item in sublist]
-flatDown.sort()
+
 #UP
 for (columnName, columnData) in up2.iteritems():
     da = columnData.tolist()
@@ -251,7 +215,7 @@ for (columnName, columnData) in up2.iteritems():
     geneListUp.append(list_no_nan)
 
 flatUp = [item for sublist in geneListUp for item in sublist]
-flatUp.sort()
+
 ######################################################################################################
 #### Printing lists
 ######################################################################################################
@@ -286,29 +250,13 @@ if userinputXL == "yes" or userinputXL == "y":
 ######################################################################################################
 #### Searching for GO
 ######################################################################################################
-
-
-print("\n")
-print("Do you want to continue to filter for GO terms")
-userinputGO = input('Please enter yes or no":\n')
-
-while userinputGO not in optionsXL:
-    print('Error, please type "yes", "y", "no" or "n"')
-    userinputGO = input('Please enter yes or no":\n')
-    userinputGO = userinputGO.lower()
-
-if userinputGO == "no" or userinputGO =="n":
-    quit()
-
-
 #is GO in either of the dfs?
 optionsGO = []
 
 GO = pd.read_excel("wantedGo.xlsx")
 colListSem = GO[GO.columns[0]].values.tolist()
 optionsGO.append(colListSem)
-colListID = GO[GO.columns[1]].values.tolist()
-optionsGO.append(colListID)
+
 
 
 flatGO = [item for sublist in optionsGO for item in sublist]
@@ -339,6 +287,15 @@ stringsDF = [vals for vals in stringsInDFCol if stringsInDFCol.count(vals) > 1]
 stringsDF = list(set(stringsDF))
 stringsDF.sort()
 
+######################################################################################################
+#### Clustered GO terms
+######################################################################################################
+GoClusters = pd.read_excel("GOGroupings.xlsx", dtype = "str")
+ClusterDict = IdentifyClusteredGO(GoClusters)
+
+        
+
+
 
 ######################################################################################################
 #### Go term loop:
@@ -348,50 +305,74 @@ goDict ={}
 
 userInputReGO = "g"
 while userInputReGO == "g":
-    print(f"The terms you have available for the versus {versUpper} are:\n")
+    print(f"The terms you have available for the versus {versus.upper()} are:\n")
 
     for itep in stringsDF:
         print(itep)
 
+    
     print("\n")
+    print("The terms you have available as premade clusters are:")
+    keyLowerList = []
+    for key, value in ClusterDict.items():
+        print(f"{key.upper()}")
+        key = key.lower()
+        keyLowerList.append(key)
 
+    stringUserLooksfor = stringsDF + keyLowerList
 
-    userinputGO2 = input('Please enter GO term you are looking for:\n')
+    userinputGO2 = input('\nPlease enter GO term or GO-cluster you are looking for:\n')
     userinputGO2 = userinputGO2.lower()
     
-    while userinputGO2 not in stringsDF:
-        userinputGO2 = input('Error, remember: "endocytosis", not "Endocytosis"\n Are you sure you typed the term correctly?\n hint: You can just copy paste from above:\n')
+    while userinputGO2 not in stringUserLooksfor:
+        userinputGO2 = input('Are you sure you typed the term correctly?\n hint: You can just copy paste from above:\n')
         userinputGO2 = userinputGO2.lower()
+
 
     #Make list from userinput and columns matching that term
     down3List = []
     up3List = []
 
-    down3 = [col for col in down2.columns if userinputGO2 in col]
-    for tem in down3:
-        dd = down2[down3].values.tolist()
-        down3List.append(dd)
-     
-    up3 = [col for col in up2.columns if userinputGO2 in col]
-    for stem in up3:
-        dd = up2[up3].values.tolist()
-        up3List.append(dd)
+    if userinputGO2 in keyLowerList:
+        userinputGO2 = userinputGO2.capitalize()
+        for item in ClusterDict[userinputGO2]:
+            down3 = [col for col in down2.columns if item in col]
+            for tem in down3:
+                dd = down2[down3].values.tolist()
+                down3List.append(dd)
+
+            up3 = [col for col in up2.columns if item in col]
+            for stem in up3:
+                dd = up2[up3].values.tolist()
+                up3List.append(dd)
+
+    else:
+        down3 = [col for col in down2.columns if userinputGO2 in col]
+        for tem in down3:
+            dd = down2[down3].values.tolist()
+            down3List.append(dd)
+        
+        up3 = [col for col in up2.columns if userinputGO2 in col]
+        for stem in up3:
+            dd = up2[up3].values.tolist()
+            up3List.append(dd)
+
 
     flatUp3 = [item4 for sublist in up3List for item4 in sublist]
     flatUp4 = [item4 for sublist in flatUp3 for item4 in sublist]
 
     flatUPsansNA = list(dict.fromkeys(flatUp4))
     flatUPsansNA2 = [item for item in flatUPsansNA if not(pd.isnull(item)) == True]
-    flatUPsansNA2 = flatUPsansNA2.sort()
+
 
     flatDown3 = [item4 for sublist in down3List for item4 in sublist]
     flatDown4 = [item4 for sublist in flatDown3 for item4 in sublist]
     flatDOWNsansNA = list(dict.fromkeys(flatDown4))
     flatDOWNsansNA2 = [item for item in flatDOWNsansNA if not(pd.isnull(item)) == True]
-    flatDOWNsansNA2 = flatDOWNsansNA2.sort()
-    print(f"Up-regulated genes for {userinputGO2} are:\n")
+
+    print(f"Up-regulated genes for {userinputGO2} in {versus.upper()} are:\n")
     print(f"{flatUPsansNA2} \n")
-    print(f"Down-regulated genes for {userinputGO2} are:\n")
+    print(f"Down-regulated genes for {userinputGO2} in {versus.upper()} are:\n")
     print(f"{flatDOWNsansNA2} \n")
 
 
