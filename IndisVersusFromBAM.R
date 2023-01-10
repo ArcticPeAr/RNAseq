@@ -32,19 +32,24 @@ library(tidyverse)
 library(clusterProfiler)
 library("org.Hs.eg.db")
 library(biomaRt)
+library(Rsubread)
+library(feather)
 ################################################################################
 #'*Point code to where files are:*
 ################################################################################
-setwd("/media/petear/SharedPart/RNAseq/Bam/")
 
 
 ######Files for analyzos ######
-bambamFiles <- list.files(pattern = "\\.bam$")
-
+bambamFiles <- list.files("/media/veracrypt10/RNAseq/Bam/",pattern = "\\.bam$")
 #GTF is of full
 gtfFile <- "/home/petear/Documents/Homo_sapiens.GRCh38.107.chr_patch_hapl_scaff.gtf"
 
-##featCounter <- featureCounts(bambamFiles, annot.inbuilt = "hg38", isPairedEnd = TRUE, nthreads=18)
+directory <- "/media/veracrypt10/RNAseq/Bam/"
+
+#Add directory to file names for featureCounts
+bamFilesDir <- file.path(directory, bambamFiles)
+
+##featCounter <- featureCounts(bamFilesDir, annot.inbuilt = "hg38", isPairedEnd = TRUE, nthreads=18)
 #Already done. Dont need to do it again for now.
 featCounter <- readRDS("featCounter.RDS")
 
@@ -115,6 +120,8 @@ for (versus in versuses)
   }
 }
 
+write_feather(TippyTopGeneDF_UP, "TippyTopGeneDF_UP.feather")
+
 ################################################################################
 #'*DOWNREGULATED DEGs*
 ################################################################################
@@ -139,6 +146,8 @@ for (versus in versuses)
   }
 }
 
+write_feather(TippyTopGeneDF_DOWN, "TippyTopGeneDF_DOWN.feather")
+
 ################################################################################
 #'*ALL DEGs*
 ################################################################################
@@ -159,7 +168,8 @@ for (versus in versuses)
   TippyTopGeneR2C[["Versus"]] <- versVec
   TippyTopGeneDF_ALL <- rbind(TippyTopGeneDF_ALL, TippyTopGeneR2C)
 }
-write.csv(TippyTopGeneDF_ALL, file = "/media/petear/SharedPart/TippyTopGeneDF_ALL.csv")
+
+write_feather(TippyTopGeneDF_ALL, "TippyTopGeneDF_ALL.feather")
 
 ################################################################################
 #'*TORMODS GO TERMS <3*
