@@ -31,7 +31,7 @@ def reverse_string(string):
 def getEnsemblMappings():
     '''Connects to Ensembl Biomart and retrieves the mapping between Entrez Gene IDs and HGNC symbols. Returns a dict with the mapping.'''
     # Set up connection to server                                               
-    server = BiomartServer("http://useast.ensembl.org/biomart")
+    server = BiomartServer("http://www.ensembl.org/biomart/martservice")
     mart = server.datasets["hsapiens_gene_ensembl"]                            
     # List the types of data we want                                            
     attributes = ["entrezgene_id", "hgnc_symbol" ]
