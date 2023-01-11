@@ -21,7 +21,7 @@
 import pandas as pd
 from biomart import BiomartServer
 
-def reverse_string(string):
+def reverseString(string):
     '''Accepts a string and returns the string in reverse order.'''
     parts = string.split("-")
     return "-".join(reversed(parts))
@@ -61,6 +61,8 @@ def topGeneFold(versus):
     #logFCfile
     logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
     #versus is a string with the comparison. Remove those not part of the versus.
+    if versus not in logFCfile["Versus"].unique():
+        versus = reverseString(versus)
     logFCfile = logFCfile[logFCfile["Versus"].str.contains(versus) == True]
     #Change the ENTREZID to string from int
     logFCfile["ENTREZID"] = logFCfile["ENTREZID"].astype(str)
