@@ -21,30 +21,23 @@
 import pandas as pd
 from biomart import BiomartServer
 
-def changeVersusString(versus):
-    parts = versus.split("-")
-    parts = parts[::-1]
-    result = "_vs_".join(parts)
-    return result
+def reverse_string(string):
+    '''Accepts a string and returns the string in reverse order.'''
+    parts = string.split("-")
+    return "-".join(reversed(parts))
 
-def changeVersusString(versus):
-    parts = versus.split("-")
-    result = "_vs_".join(parts)
-    return result
 
 #From https://autobencoder.com/2021-10-03-gene-conversion/
-def getEnsemblMappings():                                   
+def getEnsemblMappings():
+    '''Connects to Ensembl Biomart and retrieves the mapping between Entrez Gene IDs and HGNC symbols. Returns a dict with the mapping.'''
     # Set up connection to server                                               
     server = BiomartServer("http://useast.ensembl.org/biomart")
     mart = server.datasets["hsapiens_gene_ensembl"]                            
-                                                                                
     # List the types of data we want                                            
     attributes = ["entrezgene_id", "hgnc_symbol" ]
-                                                                                
     # Get the mapping between the attributes                                    
     response = mart.search({'attributes': attributes})                          
-    data = response.raw.data.decode('ascii')                                    
-                                                                                
+    data = response.raw.data.decode('ascii')
     entrezID2Name = {}
     # Store the data in a dict                                                  
     for line in data.splitlines():
@@ -63,6 +56,7 @@ getEnsemblMappings()
 
 #function to find Novogenes new csv-files to find the fold change.
 def topGeneFold(versus):
+    '''Accepts the versus as string and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
     logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
