@@ -73,7 +73,7 @@ def topGeneFold(versus):
     #split the logFCfile in up and down regulated genes
     upRegDF = logFCfile[logFCfile["logFC"] >= 0]
     downRegDF = logFCfile[logFCfile["logFC"] < 0]
-return logFCfile, upRegDF, downRegDF
+    return logFCfile, upRegDF, downRegDF
 
 
 
