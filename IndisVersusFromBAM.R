@@ -228,6 +228,9 @@ convertsFull <- convertsFull %>% rename("ensembl_gene_id" = "ENSEMBL", "hgnc_sym
 
 joinedDF_GO_FULL <- inner_join(joinedDF_GO_FULL, convertsFull, by = "ENSEMBL")
 
+##SHOULD MAYBE USE joinedDF_GO_FULL INSTEAD OF TippyTopGeneDF_ALL FOR EXPORTING TO PYTHON INSTEAD OF USING BIOMART IN PYTHON
+#write_feather(joinedDF_GO_FULL, "joinedDF_GO_FULL.feather")
+
 ################################################################################
 #'*MAKE PLOTS FOR FULL!*
 ################################################################################
