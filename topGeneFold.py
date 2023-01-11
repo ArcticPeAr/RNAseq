@@ -55,8 +55,8 @@ def getEnsemblMappings():
 getEnsemblMappings()
 
 #function to find Novogenes new csv-files to find the fold change.
-def topGeneFold(versus):
-    '''Accepts the versus as string and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
+def topGeneFold(versus, mapfile):
+    '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
     logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
@@ -67,7 +67,7 @@ def topGeneFold(versus):
     #Change the ENTREZID to string from int
     logFCfile["ENTREZID"] = logFCfile["ENTREZID"].astype(str)
     #Add gene name column to logFCfile
-    logFCfile["GeneID"] = logFCfile["ENTREZID"].map(entrezID2Name)
+    logFCfile["GeneID"] = logFCfile["ENTREZID"].map(mapfile)
     #sort the logFCfile by the logFC
     logFCfile = logFCfile.sort_values(by="logFC", ascending=False)
     #split the logFCfile in up and down regulated genes
