@@ -52,14 +52,13 @@ def getEnsemblMappings():
         entrezID2Name[entrezgene_id] = hgnc_symbol                       
     return entrezID2Name
 
-getEnsemblMappings()
 
 #function to find Novogenes new csv-files to find the fold change.
 def topGeneFold(versus, mapfile):
     '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
-    logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
+    logFCfile = pd.read_feather("/media/veracrypt10/New Folder/Documents/TippyTopGeneDF_ALL.feather")
     #versus is a string with the comparison. Remove those not part of the versus.
     if versus not in logFCfile["Versus"].unique():
         versus = reverseString(versus)
