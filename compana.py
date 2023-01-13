@@ -3,19 +3,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 import seaborn as sns
-def wrap_labels(ax, width):
-    for label in ax.get_yticklabels():
-        label.set_ha("right")
-        label.set_wrap(True)
-        label.set_width(width)
+from topGeneFold import *
 
 
-#check if string has numbers func 
-def hasNum(string):
-    return any(char.isdigit() for char in string)
 
-def removeNANs(list):
-    return [x for x in list if x == x]
 ######################################################################################################
 ####Premade GO groups from excel file and make dictionary of each column with column name as key   
 ######################################################################################################
@@ -360,7 +351,7 @@ while userInputReGO == "g":
 
     flatUp3 = [item4 for sublist in up3List for item4 in sublist]
     flatUp4 = [item4 for sublist in flatUp3 for item4 in sublist]
-
+    
     flatUPsansNA = list(dict.fromkeys(flatUp4))
     flatUPsansNA2 = [item for item in flatUPsansNA if not(pd.isnull(item)) == True]
 
@@ -404,16 +395,39 @@ while userInputReGO == "g":
     elif userinputXL2 == "no" or userinputXL2 == "n":
         print("Thanks for using this little program!")
         
-    #Create the dictionary:
+    ######################################################################################################
+    #### Fold change
+    ######################################################################################################
+    print("Do you want to calculate the fold change for these lists\nWARNING this will take a while")
+    
+    userinputFC = input('Please enter y or yes. Anything else will abort this operation:\n')
+    userinputFC = userinputFC.lower()
+    
+    if userinputFC == "yes" or userinputFC == "y":
+        print("Calculating fold change")
+        mapDict = getEnsemblMappings()
+        print("Mappings have been loaded.")
+        print("Calculating fold change.")
+        geneFoldTup = topGeneFold(versus, mapDict)
+        fcFileName = f"{versus}_FC_{userinputGO2}.xlsx"
+        print(f"Fold change has been calculated\n The dataframes are too big to display here, but the excel file has been saved as {fcFileName}")
+        
+        with pd.ExcelWriter(fcFileName) as writer:
+                geneFoldTup[1].to_excel(writer, sheet_name='UP', index=False)
+                geneFoldTup[2].to_excel(writer, sheet_name='DOWN', index=False)  
+
+    print(f"Up-regulated genes for {userinputGO2} in {versus.upper()} are:\n")
+    
+
+    
+    ######################################################################################################
+    #### Venn
+    ######################################################################################################
+    #Create the dictionary for Venn:
     listLists =[]
     listLists.append(flatUPsansNA2)
     listLists.append(flatDOWNsansNA2)
     goDict[userinputGO2] = listLists
-
-
-######################################################################################################
-#### Venn
-######################################################################################################
 
     vennList1 = list(goDict)[-1]
     if len(list(goDict)) > 1:
