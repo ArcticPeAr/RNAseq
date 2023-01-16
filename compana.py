@@ -3,7 +3,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib_venn import venn2
 import seaborn as sns
-from topGeneFold import *
 
 
 
@@ -133,6 +132,11 @@ optionsVer = list(set(optionsVer))
 ######################################################################################################
 #### Starting input
 ######################################################################################################
+import re
+def add_underscore(s):
+    s = re.sub(r'([a-zA-Z])([0-9])', r'\1_\2', s)
+    return s
+
 
 print("Your available samples are:")
 for item in optionsVer:
@@ -141,6 +145,7 @@ for item in optionsVer:
 
 usVerInput1 = input('Please select the first group to compare. E.g "C_1 or T_12"\n')
 usVerInput1 = usVerInput1.lower()
+usVerInput1 = add_underscore(usVerInput1)
 while usVerInput1 not in optionsVer:
     if len(usVerInput1) > 4:
         splitted = usVerInput1.split("-")
@@ -152,16 +157,21 @@ while usVerInput1 not in optionsVer:
         else:
             usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
             usVerInput1 = usVerInput1.lower()
+            usVerInput1 = add_underscore(usVerInput1)
     else:
         usVerInput1 = input('Error: Correct syntax is: "C_1" or "C_1-T_8"\n')
         usVerInput1 = usVerInput1.lower()
+        usVerInput1 = add_underscore(usVerInput1)
 
 if 'usVerInput2' not in locals():
     usVerInput2 = input('Please select the second group to compare. E.g "C_2 or T_11"\n')
     usVerInput2 = usVerInput2.lower()
+    usVerInput2 = add_underscore(usVerInput2)
     while usVerInput2 not in optionsVer or usVerInput1 == usVerInput2:
         usVerInput2 = input('Error: remember: "T_2", not "T2 and first sample cannot be the same as second sample"\n')
         usVerInput2 = usVerInput2.lower()
+        usVerInput2 = add_underscore(usVerInput2)
+
     
 # while usVerInput2 == usVerInput1:
 #     usVerInput2 = input('Error: Second sample cannot be the same as first sample!\nPlease type new sample: \n')
@@ -385,8 +395,8 @@ while userInputReGO == "g":
     filename2 = f"{versus}_UPandDOWN_{userinputGO2}.xlsx"
 
     if userinputXL2 == "yes" or userinputXL2 == "y":
-        dfU2 = pd.DataFrame(flatUPsansNA) # to load less packages use pandas
-        dfD2 = pd.DataFrame(flatDOWNsansNA) # to load less packages use pandas
+        dfU2 = pd.DataFrame(flatUPsansNA2) # to load less packages use pandas
+        dfD2 = pd.DataFrame(flatDOWNsansNA2) # to load less packages use pandas
         with pd.ExcelWriter(filename2) as writer:  
             dfU2.to_excel(writer, sheet_name='UP', index=False, header=False)
             dfD2.to_excel(writer, sheet_name='DOWN', index=False, header=False)
@@ -402,23 +412,53 @@ while userInputReGO == "g":
     
     userinputFC = input('Please enter y or yes. Anything else will abort this operation:\n')
     userinputFC = userinputFC.lower()
-    
+    versus = versus.upper()
+
     if userinputFC == "yes" or userinputFC == "y":
-        print("Calculating fold change")
+        from topGeneFold import *
+        print("Please wait. Catching fold change..")
         mapDict = getEnsemblMappings()
         print("Mappings have been loaded.")
-        print("Calculating fold change.")
-        geneFoldTup = topGeneFold(versus, mapDict)
-        fcFileName = f"{versus}_FC_{userinputGO2}.xlsx"
+        geneFoldTuple = topGeneFold(versus, mapDict)
+        fcFileName = f"{versus}_FC_{userinputGO2}"
+        fcFileName1 = fcFileName.upper()
+        fcFileName2 = f"{fcFileName1}.xlsx"
         print(f"Fold change has been calculated\n The dataframes are too big to display here, but the excel file has been saved as {fcFileName}")
+        dfUp = geneFoldTuple[1]
+        dfDown = geneFoldTuple[2]
+        dfUp = dfUp.query('GeneID in @flatUPsansNA2')
+        dfDown = dfDown.query('GeneID in @flatDOWNsansNA2')
+        with pd.ExcelWriter(fcFileName2) as writer:
+                dfUp.to_excel(writer, sheet_name='UP', index=False)
+                dfDown.to_excel(writer, sheet_name='DOWN', index=False) 
+        UpGenes = extractJustGenes(dfUp)
+        #remove nan values
+        UpGenes = [x for x in UpGenes if str(x) != 'nan']
+        UpGenes = [i for i in UpGenes if i != '']
+        DownGenes = extractJustGenes(dfDown)
+        #remove nan values
+        DownGenes = [x for x in DownGenes if str(x) != 'nan']
+        DownGenes = [i for i in DownGenes if i != '']
+        userinputGetPerts = input('Do you want to send these genes to MaayanLabs L1000CDS²?\n WARNING this is an external resource and should not be used indiscriminately\n y or yes to send, anything else to abort:\n')
+        userinputGetPerts = userinputGetPerts.lower()
         
-        with pd.ExcelWriter(fcFileName) as writer:
-                geneFoldTup[1].to_excel(writer, sheet_name='UP', index=False)
-                geneFoldTup[2].to_excel(writer, sheet_name='DOWN', index=False)  
-
-    print(f"Up-regulated genes for {userinputGO2} in {versus.upper()} are:\n")
-    
-
+        if userinputGetPerts == "yes" or userinputGetPerts == "y":
+            import requests
+            import json
+            genDictPerts = {}
+            genDictPerts["upGenes"] = UpGenes
+            genDictPerts["dnGenes"] = DownGenes
+            url = 'https://maayanlab.cloud/L1000CDS2/query'
+            config = {"aggravate":True,"searchMethod":"geneSet","share":False,"combination":True,"db-version":"latest"}
+            metadata = [{"key":"Tag","value":fcFileName1}]
+            payload = {"data":genDictPerts,"config":config,"meta":metadata}
+            headers = {'content-type':'application/json'}
+            r = requests.post(url,data=json.dumps(payload),headers=headers)
+            resGeneSet = r.json()
+            dfFromDict = pd.DataFrame.from_dict(resGeneSet, orient='index', columns=['value'])
+            fcFileName3 = f"{fcFileName1}_perts.xlsx"
+            dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, engine='openpyxl') 
+            print(f"The results have been saved as {fcFileName3}")
     
     ######################################################################################################
     #### Venn
