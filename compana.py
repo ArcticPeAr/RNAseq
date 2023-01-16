@@ -455,9 +455,9 @@ while userInputReGO == "g":
             headers = {'content-type':'application/json'}
             r = requests.post(url,data=json.dumps(payload),headers=headers)
             resGeneSet = r.json()
-            dfFromDict = pd.DataFrame.from_dict(resGeneSet, orient='index', columns=['value'])
+            dfFromDict = pd.DataFrame.from_dict(resGeneSet['topMeta'])
             fcFileName3 = f"{fcFileName1}_perts.xlsx"
-            dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, engine='openpyxl') 
+            dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, header=True, startrow=0, startcol=0, engine='xlsxwriter') 
             print(f"The results have been saved as {fcFileName3}")
     
     ######################################################################################################
