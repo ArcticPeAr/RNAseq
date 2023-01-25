@@ -376,6 +376,8 @@ while userInputReGO == "g":
     print(f"Down-regulated genes for {userinputGO2} in {versus.upper()} are:\n")
     print(f"{flatDOWNsansNA2} \n")
 
+    #sorting for risk genes using the risk gene list
+    riskGenes = pd.read_excel("KnownRiskGenes.xlsx")
 
     ######################################################################################################
     #### Printing out  for GO
@@ -408,6 +410,7 @@ while userInputReGO == "g":
     ######################################################################################################
     #### Fold change
     ######################################################################################################
+    
     print("Do you want to calculate the fold change for these lists\nWARNING this will take a while")
     
     userinputFC = input('Please enter y or yes. Anything else will abort this operation:\n')
@@ -459,6 +462,7 @@ while userInputReGO == "g":
             fcFileName3 = f"{fcFileName1}_perts.xlsx"
             dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, header=True, startrow=0, startcol=0, engine='xlsxwriter') 
             print(f"The results have been saved as {fcFileName3}")
+    
     
     ######################################################################################################
     #### Venn
