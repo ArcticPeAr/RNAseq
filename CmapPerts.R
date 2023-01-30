@@ -49,10 +49,10 @@ VersVec <- c(OpptakVec,OpptakVec2)
 TestVec <- c("C_7")
 
 Samples <- c(
-"T_5",
+"C_7",
+"T_11",
 "T_8",
-"T_12",
-"T_11"
+"T_12"
 )
 
 #Create a vector of all possible combinations of TestVec and Samples
