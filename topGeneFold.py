@@ -63,13 +63,15 @@ def getEnsemblMappings():
         entrezID2Ensembl[entrezgene_id] = ensembl_gene_id
     return entrezID2Name, entrezID2Ensembl 
 
+#Generate the mapfile
+mapfile = getEnsemblMappings()
+
 
 #function to find Novogenes new csv-files to find the fold change.
-def topGeneFoldGeneName(versus):
-    '''Accepts the versus as string and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
+def topGeneFoldGeneName(versus, mapfile):
+    '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
-    mapfile = getEnsemblMappings()
     logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
     #versus is a string with the comparison. Remove those not part of the versus.
     if versus not in logFCfile["Versus"].unique():
