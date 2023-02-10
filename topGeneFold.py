@@ -65,10 +65,11 @@ def getEnsemblMappings():
 
 
 #function to find Novogenes new csv-files to find the fold change.
-def topGeneFoldGeneName(versus, mapfile):
-    '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
+def topGeneFoldGeneName(versus):
+    '''Accepts the versus as string and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
+    mapfile = getEnsemblMappings()
     logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
     #versus is a string with the comparison. Remove those not part of the versus.
     if versus not in logFCfile["Versus"].unique():
@@ -83,7 +84,7 @@ def topGeneFoldGeneName(versus, mapfile):
     #split the logFCfile in up and down regulated genes
     upRegDF = logFCfile[logFCfile["logFC"] >= 0]
     downRegDF = logFCfile[logFCfile["logFC"] < 0]
-    return logFCfile
+    return logFCfile , upRegDF, downRegDF
 
 def topGeneFoldEnsembl(versus, mapfile):
     '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
@@ -103,7 +104,7 @@ def topGeneFoldEnsembl(versus, mapfile):
     #split the logFCfile in up and down regulated genes
     upRegDF = logFCfile[logFCfile["logFC"] >= 0]
     downRegDF = logFCfile[logFCfile["logFC"] < 0]
-    return logFCfile
+    return logFCfile, upRegDF, downRegDF
 
 
 
