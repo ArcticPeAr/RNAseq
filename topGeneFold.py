@@ -63,9 +63,6 @@ def getEnsemblMappings():
         entrezID2Ensembl[entrezgene_id] = ensembl_gene_id
     return entrezID2Name, entrezID2Ensembl 
 
-#Generate the mapfile
-mapfile = getEnsemblMappings()
-
 
 #function to find Novogenes new csv-files to find the fold change.
 def topGeneFoldGeneName(versus, mapfile):
