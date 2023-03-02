@@ -20,6 +20,12 @@
 
 import pandas as pd
 from biomart import BiomartServer
+import os
+
+parentDir = os.path.abspath(os.path.join(os.getcwd(), os.pardir))
+
+inputFolder = os.path.join(parentDir, "CompFiles")
+
 
 def reverseString(string):
     '''Accepts a string and returns the string in reverse order.'''
@@ -69,7 +75,8 @@ def topGeneFoldGeneName(versus, mapfile):
     '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
-    logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
+    tippytopFilePath = os.path.join(inputFolder, "TippyTopGeneDF_ALL.feather")
+    logFCfile = pd.read_feather(tippytopFilePath)
     #versus is a string with the comparison. Remove those not part of the versus.
     if versus not in logFCfile["Versus"].unique():
         versus = reverseString(versus)
@@ -89,7 +96,8 @@ def topGeneFoldEnsembl(versus, mapfile):
     '''Accepts the versus as string and a file with mapping of and returns the logFCfile, upregulated genes as upRegDF and downregulated genes as downRegDF.'''
     #open the files
     #logFCfile
-    logFCfile = pd.read_feather("/home/petear/Documents/TippyTopGeneDF_ALL.feather")
+    tippytopFilePath = os.path.join(inputFolder, "TippyTopGeneDF_ALL.feather")
+    logFCfile = pd.read_feather(tippytopFilePath)
     #versus is a string with the comparison. Remove those not part of the versus.
     if versus not in logFCfile["Versus"].unique():
         versus = reverseString(versus)
@@ -106,12 +114,12 @@ def topGeneFoldEnsembl(versus, mapfile):
     return logFCfile, upRegDF, downRegDF
 
 
-
 def extractJustGenes(DF):
     '''Accepts a dataframe and returns a list of the genes.'''
     #Extract the genes
     genes = DF["GeneID"].tolist()
     return genes
+
 
 def ExistInList(dataframe, list):
     '''Accepts a dataframe and a list and returns a dataframe with the genes in the list.'''
@@ -126,6 +134,7 @@ def ExistInList(dataframe, list):
     genesInListDF = dataframe[dataframe["GeneID"].isin(genesInList)]
     return genesInListDF
 
+
 def Export2Excel(dataframe, filename):
     '''Accepts a dataframe and a filename and exports the dataframe to an excel file.'''
     #Export the dataframe to an excel file
@@ -133,3 +142,12 @@ def Export2Excel(dataframe, filename):
     dataframe.to_excel(writer, sheet_name='Sheet1')
     writer.save()
     return
+
+
+def SimpleGeneIDadd(dataframe, mapTuple):
+    '''Accepts a dataframe and a mapTuple and returns the dataframe with added gene names.'''
+    #Add gene name column to logFCfile
+    dataframe["GeneID"] = dataframe["ENTREZID"].map(mapTuple[0])
+    return dataframe
+
+
