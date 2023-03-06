@@ -163,7 +163,7 @@ versList = []
 
 sampListFile = inputFolder + "/Versuses.txt"
 sampList = readExternalList(sampListFile)
-
+print(sampList)
 #If user wants to make specific versus selection, but mistook the order of the samples
 for item in sampList:
     if len(item) > 4:
@@ -177,7 +177,13 @@ readVersList = pairItems(sampList)
 for item in readVersList:
     if item in StrList:
         versList.append(item)
+
+versList = [x for x in versList if x in StrList]
+
 print("Versuses selected: ", versList)
+
+print(StrList)
+
 ######################################################################################################
 #### Flaggies!
 ######################################################################################################
@@ -190,6 +196,7 @@ if __name__ == '__main__':
     FClists = False
     Perts = False
     Venn = False
+    gene = False
     All = False
     help = False
 
@@ -208,14 +215,22 @@ for i in range(1, len(sys.argv)):
         Perts = True
     elif sys.argv[i] == '-Venn':
         Venn = True
+    elif sys.argv[i] == '-gene':
+        gene = True
     elif sys.argv[i] == '-all':
         All = True
     elif sys.argv[i] == '-help' or sys.argv[i] == '-h':
         help = True
 
+if len(sys.argv) == 1:
+    help = True
+
+
 if GOlists == True or Venn == True:
     GOterm = True
 if Perts == True:
+    FC = True
+if gene == True:
     FC = True
 
    
@@ -232,6 +247,7 @@ if help == True:
     print("-FClists: Create lists of genes up and down regulated for each FC")
     print("-Perts: Create FC analysis for each perturbation")
     print("-Venn: Create Venn diagrams for each versus")
+    print("-gene: Search for specific genes in the results")
     print("-all: Run all the above")
     print("-help: Print this help")
     print('ATTENTION: Because "Perts" is a flag that requires the use of external resources (https://maayanlab.cloud/L1000CDS2/query), it is not included in the "all" flag')
@@ -242,39 +258,41 @@ if help == True:
 #Versus list
 ############################################################################################
 
-if lists == True or All == True:
-    versListDict = {}
-    versPDDict = {}
-    for versus in versList:
-        down2 = down.filter(regex=versus)
-        up2 = up.filter(regex=versus)
-        geneListUp = list()
-        geneListDown = list()
-        versPDDict[versus] = [up2, down2]       #Dict createad to be used in GO term analysis
-    #DOWN
-        for (columnName, columnData) in down2.items():
-            da = columnData.tolist()
-            list_no_nan = [x for x in da if pd.notnull(x)]
-            geneListDown.append(list_no_nan)
-        flatDown = [item for sublist in geneListDown for item in sublist]
-    #UP
-        for (columnName, columnData) in up2.items():
-            da = columnData.tolist()
-            list_no_nan = [x for x in da if pd.notnull(x)]
-            geneListUp.append(list_no_nan)
-        flatUp = [item for sublist in geneListUp for item in sublist]
-        flatUP1sansNA = list(dict.fromkeys(flatUp))
-        flatDown1sansNA = list(dict.fromkeys(flatDown))
-        versListDict[versus] = [flatUP1sansNA, flatDown1sansNA]
+versListDict = {}
+versPDDict = {}
+for versus in versList:
+    down2 = down.filter(regex=versus)
+    up2 = up.filter(regex=versus)
+    geneListUp = list()
+    geneListDown = list()
+    versPDDict[versus] = [up2, down2]       #Dict createad to be used in GO term analysis
+#DOWN
+    for (columnName, columnData) in down2.items():
+        da = columnData.tolist()
+        list_no_nan = [x for x in da if pd.notnull(x)]
+        geneListDown.append(list_no_nan)
+    flatDown = [item for sublist in geneListDown for item in sublist]
+#UP
+    for (columnName, columnData) in up2.items():
+        da = columnData.tolist()
+        list_no_nan = [x for x in da if pd.notnull(x)]
+        geneListUp.append(list_no_nan)
+    flatUp = [item for sublist in geneListUp for item in sublist]
+    flatUP1sansNA = list(dict.fromkeys(flatUp))
+    flatDown1sansNA = list(dict.fromkeys(flatDown))
+    versListDict[versus] = [flatUP1sansNA, flatDown1sansNA]
 print("Versuses selectedAAA: ", versListDict.keys())
 print("Versuses selectedBBB: ", versListDict)
 ######################################################################################################
 #### Printing lists
 ######################################################################################################
-
+for versus in versListDict:
+    print("Versus: ", versus)
+    print("UP: ", versListDict[versus][0])
+    print("DOWN: ", versListDict[versus][1])
 
 if lists == True or All == True:
-    for key in versListDict.items():
+    for key in versListDict:
         filename = f"{versus}-UPandnDOWN.xlsx"
         dfU = pd.DataFrame(flatUP1sansNA) # to load less packages use pandas
         dfD = pd.DataFrame(flatDown1sansNA) # to load less packages use pandas
@@ -388,7 +406,7 @@ if FC == True or All == True:
             #remove nan values
             DownGenes = [x for x in DownGenes if str(x) != 'nan']
             DownGenes = [i for i in DownGenes if i != '']
-            
+        #print(f"Downgenes are {DownGenes}, upgenes are {UpGenes}")
             if Perts == True:
                 import requests
                 import json
