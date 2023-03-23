@@ -40,6 +40,20 @@ def readExternalList(txtFile):
             listFromFile.append(line.strip().lower())
     return listFromFile
 
+def readExternalTSV(tsvFile):
+    '''Accept a csv file with multiple columns and returns a list of all values from the columns.'''
+    df = pd.read_csv(tsvFile, dtype = "str", sep='\t')
+    data = df.values.tolist()
+    flatList = [item for sublist in data for item in sublist]
+    return flatList
+
+def defineGroupsFromTSV(tsvFile):
+    '''Accepts a TSV file and returns a dictionary where the column names are keys and the corresponding rows are values as a list..'''
+    df = pd.read_csv(tsvFile, sep='\t')
+    sampGr = df.to_dict('list')
+    return sampGr
+
+
 import re
 def add_underscore(s):
     s = re.sub(r'([a-zA-Z])([0-9])', r'\1_\2', s)
@@ -161,9 +175,10 @@ optionsVer.append("all")
 ######################################################################################################
 versList = []
 
-sampListFile = inputFolder + "/Versuses.txt"
-sampList = readExternalList(sampListFile)
-print(sampList)
+# New version will consist of a TSV file with versus names in different columns
+sampListFile = inputFolder + "/Versuses.csv"
+sampList = readExternalTSV(sampListFile)
+
 #If user wants to make specific versus selection, but mistook the order of the samples
 for item in sampList:
     if len(item) > 4:
@@ -180,9 +195,6 @@ for item in readVersList:
 
 versList = [x for x in versList if x in StrList]
 
-print("Versuses selected: ", versList)
-
-print(StrList)
 
 ######################################################################################################
 #### Flaggies!
@@ -193,10 +205,12 @@ if __name__ == '__main__':
     GOterm = False
     GOlists = False
     FC = False
-    FClists = False
     Perts = False
     Venn = False
     gene = False
+    FCperVersus = False
+    FCperGOterm = False
+    UnionIntersect = False
     All = False
     help = False
 
@@ -217,6 +231,12 @@ for i in range(1, len(sys.argv)):
         Venn = True
     elif sys.argv[i] == '-gene':
         gene = True
+    elif sys.argv[i] == '-FCperVersus':
+        FCperVersus = True
+    elif sys.argv[i] == '-FCperGOterm':
+        FCperGOterm = True
+    elif sys.argv[i] == '-UnIsect':
+        UnionIntersect = True
     elif sys.argv[i] == '-all':
         All = True
     elif sys.argv[i] == '-help' or sys.argv[i] == '-h':
@@ -225,7 +245,9 @@ for i in range(1, len(sys.argv)):
 if len(sys.argv) == 1:
     help = True
 
-
+if UnionIntersect == True:
+    lists = True
+    GOlists = True
 if GOlists == True or Venn == True:
     GOterm = True
 if Perts == True:
@@ -244,15 +266,17 @@ if help == True:
     print("-GO: Create GO term analysis for each versus")
     print("-GOlists: Create lists of genes up and down regulated for each GO term")
     print("-FC: Add fold change for each versus and GO term")
-    print("-FClists: Create lists of genes up and down regulated for each FC")
     print("-Perts: Create FC analysis for each perturbation")
     print("-Venn: Create Venn diagrams for each versus")
     print("-gene: Search for specific genes in the results")
     print("-all: Run all the above")
     print("-help: Print this help")
-    print('ATTENTION: Because "Perts" is a flag that requires the use of external resources (https://maayanlab.cloud/L1000CDS2/query), it is not included in the "all" flag')
+    print('ATTENTION: Because "Perts" is a flag that requires the use of external resources (https://maayanlab.cloud/L1000CDS2/query), it is not included in the "all" flag. If you want to use it along the "all" flag you can simply add it as well (E.g. python3 compana.py -all -Perts')
     sys.exit()
-
+if help == False:
+    print(sampList)
+    print("Versuses selected: ", versList)
+    print(StrList)
 
 ############################################################################################
 #Versus list
@@ -293,9 +317,9 @@ for versus in versListDict:
 
 if lists == True or All == True:
     for key in versListDict:
-        filename = f"{versus}-UPandnDOWN.xlsx"
-        dfU = pd.DataFrame(flatUP1sansNA) # to load less packages use pandas
-        dfD = pd.DataFrame(flatDown1sansNA) # to load less packages use pandas
+        filename = f"{key.upper()}-UPandnDOWN.xlsx"
+        dfU = pd.DataFrame(versListDict[key][0]) # to load less packages use pandas
+        dfD = pd.DataFrame(versListDict[key][1]) # to load less packages use pandas
         with pd.ExcelWriter(f"{outputFolder}/{filename}", engine='xlsxwriter') as writer:  
             dfU.to_excel(writer, sheet_name='UP', index=False, header=False)
             dfD.to_excel(writer, sheet_name='DOWN', index=False, header=False)
@@ -327,7 +351,7 @@ if GOterm == True or All == True:
             ExtGoTup = gs.GoTermUpDownListMaker(item, GoClusterDict, down2, up2) #this creates a tuple with the up and down genes for the GO term: Up is returned first
             GODict[item]=ExtGoTup
         versGODict[versus] = GODict 
-
+print("VERSUS GO DICT: ", versGODict)
 ######################################################################################################
 #### Sorting for risk genes
 ######################################################################################################
@@ -365,19 +389,37 @@ if GOlists == True or All == True:
 ######################################################################################################
 #### Fold change/Foldchange
 ######################################################################################################
+print(f"VERSSDOWN: {versListDict[versus][1]}")
 
-
-
-if FC == True or All == True:
+if FCperGOterm == True or FCperVersus == True or All == True:
     from topGeneFold import *
     print("Please wait. Catching fold change..")
     mapDict = getEnsemblMappings()
     print("Mappings have been loaded.")
+
+
+if FCperVersus == True or All == True: 
+    FCversDict = {}
+    for vers in versListDict.keys():
+        versUpCase=vers.upper()
+        foldTuple = topGeneFoldGeneName(versUpCase, mapDict)
+        dfUp = foldTuple[1]
+        dfDown = foldTuple[2]
+        #print("UP: ", dfUp)
+        #print("DOWN: ", dfDown)
+        #remove rows in dfUp["geneID"] that is not in the list, versListDict[vers][0]
+        dfUpSorted = dfUp[dfUp['GeneID'].isin(versListDict[vers][0])]
+        dfDownSorted = dfDown[dfDown['GeneID'].isin(versListDict[vers][1])]
+        with pd.ExcelWriter(f"{outputFolder}/{vers}-FC.xlsx", engine='xlsxwriter') as writer:  
+            dfUpSorted.to_excel(writer, sheet_name='UP', index=False)
+            dfDownSorted.to_excel(writer, sheet_name='DOWN', index=False)
+
+if (FCperGOterm == True and GOterm == True) or All == True:
+    FCGOtermDict = {}
     for vers in versGODict.keys():
         versUpCase=vers.upper()
-        #print(f"{versGODict[vers]} is versGODict[vers]")
         geneFoldTuple = topGeneFoldGeneName(versUpCase, mapDict)
-        fcFileNameWOGO = f"{versUpCase}_FC"
+        fcFileNameWOGO = f"{versUpCase}-GO_FC"
         fcFileName1WOGO = fcFileNameWOGO.upper()
         fcFileName2WOG = f"{outputFolder}/{fcFileName1WOGO}.xlsx"
         print(f"Fold change has been calculated\n The dataframes are too big to display here, but the excel file has been saved as {fcFileName2WOG}")
@@ -388,7 +430,6 @@ if FC == True or All == True:
                 dfDownWOGO.to_excel(writer, sheet_name='DOWN', index=False) 
         #To find regulated genes for the GO terms
         for key in versGODict[vers].keys():
-            #print(f"{versGODict[vers][key]} is versGODict[vers][key]")
             UpList = versGODict[vers][key][0] 
             DownList = versGODict[vers][key][1]
             dfUpWithGO = dfUpWOGO.query('GeneID in @UpList')
@@ -407,30 +448,30 @@ if FC == True or All == True:
             DownGenes = [x for x in DownGenes if str(x) != 'nan']
             DownGenes = [i for i in DownGenes if i != '']
         #print(f"Downgenes are {DownGenes}, upgenes are {UpGenes}")
-            if Perts == True:
-                import requests
-                import json
-                genDictPerts = {}
-                genDictPerts["upGenes"] = UpGenes
-                genDictPerts["dnGenes"] = DownGenes
-                url = 'https://maayanlab.cloud/L1000CDS2/query'
-                config = {"aggravate":True,"searchMethod":"geneSet","share":False,"combination":True,"db-version":"latest"}
-                metadata = [{"key":"Tag","value":fcFileName1}]
-                payload = {"data":genDictPerts,"config":config,"meta":metadata}
-                headers = {'content-type':'application/json'}
-                r = requests.post(url,data=json.dumps(payload),headers=headers)
-                resGeneSet = r.json()
-                dfFromDict = pd.DataFrame.from_dict(resGeneSet['topMeta'])
-                fcFileName3 = f"{fcFileName1}_perts.xlsx"
-                dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, header=True, startrow=0, startcol=0, engine='xlsxwriter') 
-                print(f"The results have been saved as {fcFileName3}")
+            # if Perts == True:
+            #     import requests
+            #     import json
+            #     genDictPerts = {}
+            #     genDictPerts["upGenes"] = UpGenes
+            #     genDictPerts["dnGenes"] = DownGenes
+            #     url = 'https://maayanlab.cloud/L1000CDS2/query'
+            #     config = {"aggravate":True,"searchMethod":"geneSet","share":False,"combination":True,"db-version":"latest"}
+            #     metadata = [{"key":"Tag","value":fcFileName1}]
+            #     payload = {"data":genDictPerts,"config":config,"meta":metadata}
+            #     headers = {'content-type':'application/json'}
+            #     r = requests.post(url,data=json.dumps(payload),headers=headers)
+            #     resGeneSet = r.json()
+            #     dfFromDict = pd.DataFrame.from_dict(resGeneSet['topMeta'])
+            #     fcFileName3 = f"{fcFileName1}_perts.xlsx"
+            #     dfFromDict.to_excel(fcFileName3, sheet_name='Sheet1', index=True, header=True, startrow=0, startcol=0, engine='xlsxwriter') 
+            #     print(f"The results have been saved as {fcFileName3}")
 
-######################################################################################################
-#### Venn
-######################################################################################################
+#####################################################################################################
+### Venn
+#####################################################################################################
 #Create the dictionary for Venn:
 
-#if (Venn == True or All == True) and len(list(goDict)) > 1:
+# if (Venn == True or All == True) and len(list(goDict)) > 1:
 #    import VennModule as vennMod
     
 
@@ -438,29 +479,83 @@ if FC == True or All == True:
 
 
 
-"""
-    listLists = []
-    listLists.append(flatUPsansNA2)
-    listLists.append(flatDOWNsansNA2)
-    goDict[userinputGO2] = listLists
 
-    "This is to make a venn diagram of the last two GO terms"
-    vennList1 = list(goDict)[-1]
-    if len(list(goDict)) > 1:
-        vennList2 = list(goDict)[-2]
+#####################################################################################################
+### Union/intersection for up/down regulated genes   
+#####################################################################################################
 
-print(f"{userinputGO2} and its up and down lists have been saved for later use")
+#Opptak 
+import UupsideU as uuu
+
+GoListTXT = uuu.readExtGoList("inputFolder/SilicoScreening.txt")
+GoDictSilicoScreen = uuu.unclusteredGo("inputFolder/GOGroupings.xlsx")
+
+#GoDict[0] = unclustered GO groups and consists of Opptak as key and a list of GO terms as value
+GoDictSilicoScreen0 = GoDictSilicoScreen[0]
+CorrectGOdict = removeNotInGoTXT(GoListTXT, GoDictSilicoScreen0) 
+#VersGODict = {versus: {GOterm: [upregulated genes, downregulated genes]}}
+
+
+# Loop over VersGODict and for each key (versus) loop over the values (GOterm) an collect the GO terms that correspond to the key in GOdict and then collect the upregulated and downregulated genes for each GO term.
+
+
+# SampleDict = {}
+# geneDict = {}
+# UpList = []
+# DownList = []
+# for key, val in versGODict.items():
+#     #key = versus
+#     #val = {GOterm: [upregulated genes, downregulated genes]}
+#     #SubDict now
+#     for secKey, secVal  in versGODict[key].items():
+#         #secKey = GOterm
+#         #secVal = [upregulated genes, downregulated genes]
+#         for Gokey, Goval in CorrectGOdict.items():
+#             #Gokey = GOgroup
+#             #Goval = [GOterms]
+#             for term in Goval:
+#                 if term == secKey:
+#                     print(f"term is {term} and secKey is {secKey}")
+#                     UpList.append(versGODict[key][secKey][0])
+#                     DownList.append(versGODict[key][secKey][1])
+#     SampleDict[key] = (UpList, DownList)
 
 
 
+SampleDict = {}
+geneDict = {}
+UpList = []
+DownList = []
+for Gokey, Goval in CorrectGOdict.items():
+    #Gokey = GOgroup
+    #Goval = [GOterms]
+    for term in Goval:
+        for key, val in versGODict.items():
+        #key = versus
+        #val = {GOterm: [upregulated genes, downregulated genes]}
+        #SubDict now
+            for secKey, secVal  in versGODict[key].items():
+                #secKey = GOterm
+                #secVal = [upregulated genes, downregulated genes]
+                if term == secKey:
+                    UpList.append(versGODict[key][secKey][0])
+                    DownList.append(versGODict[key][secKey][1])
+                    for i in UpList:
+                        if i == []:
+                            UpList.remove(i)
+                    for i in DownList:
+                        if i == []:
+                            DownList.remove(i)
+                    UpList2 = [item for sublist in UpList for item in sublist]
+                    DownList2 = [item for sublist in DownList for item in sublist]
+                    UpList3 = [item for i, item in enumerate(UpList2) if item not in UpList2[:i]]
+                    DownList3 = [item for i, item in enumerate(DownList2) if item not in DownList2[:i]]
+                    print(f"UpList3 = {UpList3}")
+                    print(f"DownList3 = {DownList3}")
+                #make UpList into a single list
+            SampleDict[key] = (UpList3, DownList3)
+            print(f"SampleDict = {SampleDict}")
+        UpList = []
+        DownList = []
+    geneDict[Gokey] = SampleDict            
 
-
-userInputReGO = input('Press "g" you want to search for another GO term.\n')
-userInputReGO = userInputReGO.lower()
-
-print( "Thanks for using this little program!")
-print("Producing bar plot of number of up and down genes belonging for the GO terms you have searched for")
-
-if userinputBP == "bp":
-    BarPlot(goDict, versus)
-"""
