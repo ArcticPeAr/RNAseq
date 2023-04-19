@@ -176,7 +176,7 @@ optionsVer.append("all")
 versList = []
 
 # New version will consist of a TSV file with versus names in different columns
-sampListFile = inputFolder + "/Versuses.csv"
+sampListFile = inputFolder + "/Versuses.tsv"
 sampList = readExternalTSV(sampListFile)
 
 #If user wants to make specific versus selection, but mistook the order of the samples
@@ -192,6 +192,9 @@ readVersList = pairItems(sampList)
 for item in readVersList:
     if item in StrList:
         versList.append(item)
+
+#lowercaps for every item in versList:
+versList = [x.lower() for x in versList]
 
 versList = [x for x in versList if x in StrList]
 

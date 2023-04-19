@@ -125,7 +125,7 @@ def GoTermUpDownListMaker(GoTerm, ClusterDict, down2, up2):
     flatDOWNsansNA2 = [item for item in flatDOWNsansNA if not(pd.isnull(item)) == True]
     return flatUPsansNA2, flatDOWNsansNA2
 
-def create_dataframe_dict(versus_dict):
+def createDataframeDict(versus_dict):
     '''function takes a dictionary with versus names as keys and a subdict as values. The subdict contais GO terms as keys and a tuple as values. Each tuple contains two lists of gene names. This function will create a new dictionary with the versus names as keys and a pandas dataframe as values. The dataframe will consist of columns with the GO terms + UP or DOWN. If the name is GO term + UP the rowsn will be the first list from the tuple and if its GO term + DOWN the rows will consist of the second list from the tuple'''
     dataframe_dict = {}
     for versus_name, subdict in versus_dict.items():
@@ -137,5 +137,4 @@ def create_dataframe_dict(versus_dict):
                 dataframe.loc[gene_name, f"{go_term}_UP"] = gene_name
         dataframe_dict[versus_name] = dataframe.fillna("")
     return dataframe_dict
-
 

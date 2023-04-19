@@ -41,16 +41,6 @@ def removeNotInGoTXT(GOlistFile, DictOfGOterms):
 #Dict 
 # Godict {GOterm1: {sample1: (up+down), sample2: (up+down), sample1+sample2 (up+up+down+down)}, GOterm2: {sample1: (up+down), sample2: (up+own),sample1+sample2 (up+up+down+down)}}
 
-def KeyValueCombiner(PlusOneDictKeyValue):
-    '''Accepts a dictionary where keys are GO terms and values are dicts with versuses as keys and values that are a tuple with two lists of up and down genes. This function creates a new key value pair where the key is the combination of all the keys and the value a new tuple with two lists of up and down genes that are the union of all the values.'''
-    for firstKey in PlusOneDictKeyValue.keys():
-        for secondKey in PlusOneDictKeyValue[firstKey].keys():
-        down = []
-        for versus in PlusOneDictKeyValue[key].keys():
-            up = up + PlusOneDictKeyValue[key][versus][0]
-            down = down + PlusOneDictKeyValue[key][versus][1]
-        PlusOneDictKeyValue[key]["Union"] = (up,down)
-    return PlusOneDictKeyValue
 
 
 def unionizedDict(DictOfGoTerms):
