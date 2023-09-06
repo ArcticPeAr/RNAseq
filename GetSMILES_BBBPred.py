@@ -141,18 +141,20 @@ clue = pd.read_csv('/home/petear/MEGA/TormodGroup/InputData/AllAlgoSi09Aug.csv',
 #############################################################################
 #Find MoA perturbagens and merge with clue dataframe 
 #############################################################################
-wanted_MoA = "MTOR inhibitor"
+wanted_MoA = "JAK inhibitor"
 unwanted_MoA = "PI3K inhibitor"
 
 #File with perturbagens per MoA
 pertMoA = pd.read_excel('/home/petear/MEGA/TormodGroup/InputData/MoACounts.xlsx', sheet_name='PertsPrMoAAll')
 
 #Remove all columns that dont have MoA in them
-cols_to_drop1 = [col for col in pertMoA if MoA not in col]
+cols_to_drop1 = [col for col in pertMoA if wanted_MoA not in col]
 cols_to_drop2 = [col for col in pertMoA if unwanted_MoA in col]
+cols_to_dropAll = cols_to_drop1 + cols_to_drop2
+#remove duplicates
+cols_to_dropAll = list(dict.fromkeys(cols_to_dropAll))
 
-pertMoA.drop(columns=cols_to_drop, inplace=True)
-pertMoA.drop(columns=cols_to_drop2, inplace=True)
+pertMoA.drop(columns=cols_to_dropAll, inplace=True)
 
 #take all values from pertMoA dataframe and put them in a list
 pertMoA = pertMoA.values.tolist()
@@ -204,7 +206,7 @@ for i in range(len(KnownSmilesDF2["pert_id"])):
 #For items in KnownSmilesDF3["SM_Center_Canonical_ID"] that are in clue[0], add the corresponding KnownSmilesDF3["SM_Center_Canonical_SMILES"] to SMILESFromFiles3 column with for loop
 for i in range(len(KnownSmilesDF3["SM_Center_Canonical_ID"])):
     if KnownSmilesDF3["SM_Center_Canonical_ID"][i] in clue[0].values:
-        clue.loc[clue[0] == KnownSmilesDF3["SM_Center_Canonical_ID"][i], 'SMILESFromFiles3'] = KnownSmilesDF3["SM_Center_Canonical_SMILES"][i]
+        clue.loc[clue[0] == KnownSmilesDF3["SM_Center_Canonical_ID"][i], 'SMILESFromFiles3'] = KnownSmilesDF3["SM_SMILES_Batch"][i]
     else:
         pass
 
@@ -217,13 +219,37 @@ for i in range(len(KnownSmilesDF3["SM_Center_Canonical_ID"])):
 clue = clue.dropna(axis=1, how='all')
 
 #For each smile in SMILESFromFiles1, predict BBB penetration and add to new column
-clue['BBBPredFromFile'] = clue['SMILES'].apply(predictBBB)
 
 clue['BBBPredSmileFromPubchem'] = clue['SMILES'].apply(predictBBB)
 
+clue['BBBPredFromFile1'] = clue['SMILESFromFiles1'].apply(predictBBB)
 
+clue['BBBPredFromFile2'] = clue['SMILESFromFiles2'].apply(predictBBB)
+
+clue['BBBPredFromFile3'] = clue['SMILESFromFiles3'].apply(predictBBB)
+
+#set values to int unless its the "Invalid SMILES"
+clue['BBBPredSmileFromPubchem'] = clue['BBBPredSmileFromPubchem'].apply(lambda x: int(x) if x != "Invalid SMILES" else x)
+clue['BBBPredFromFile1'] = clue['BBBPredFromFile1'].apply(lambda x: int(x) if x != "Invalid SMILES" else x)
+clue['BBBPredFromFile2'] = clue['BBBPredFromFile2'].apply(lambda x: int(x) if x != "Invalid SMILES" else x)
+clue['BBBPredFromFile3'] = clue['BBBPredFromFile3'].apply(lambda x: int(x) if x != "Invalid SMILES" else x)
+
+#Make new column that sums all the BBBPred columns except where the value is "Invalid SMILES" string
+temp_df = clue.copy()
+temp_df = temp_df.applymap(lambda x: pd.to_numeric(x, errors='coerce'))
+temp_df['BBBPredSum'] = temp_df[['BBBPredSmileFromPubchem', 'BBBPredFromFile1', 'BBBPredFromFile2', 'BBBPredFromFile3']].sum(axis=1, skipna=True)
+clue['BBBPredSum'] = temp_df['BBBPredSum']
+
+#set BBBPredSum as int
+clue['BBBPredSum'] = clue['BBBPredSum'].astype(int)
+
+#set BBBPredSum as second column
+clue = clue[[0,'BBBPredSum',  1, 2, 3, 4, 5, 6, 7, 8,9,"SMILES", "SMILESFromFiles1", "SMILESFromFiles2", "SMILESFromFiles3","BBBPredSmileFromPubchem", "BBBPredFromFile1", "BBBPredFromFile2", "BBBPredFromFile3"]]
+
+#rename columns
+clue = clue.rename(columns={0: "Pert", 1: "Cell_iname", 2: "Pert_type", 3: "Pert_idose", 4: "pert_itime", 5: "MoA", 6: "nsample", 7: "tas", 8: "raw_cs", 9: "FDR_q_nlog10", "SMILES": "SMILESFromPubchem"})
 #############################################################################
 #Save to excel
 #############################################################################
-
-clue.to_excel('/home/petear/MEGA/TormodGroup/InputData/BBBPred.xlsx', index=False)
+save_string = f'/home/petear/MEGA/TormodGroup/InputData/{wanted_MoA}.xlsx'
+clue.to_excel(save_string, index=False)
