@@ -60,11 +60,8 @@ fCounterCount <- featCounter$counts
 
 
 #Create vector for the different groupings for EdgeR (This also keeps them in order of appearance)
-grVector <- c()
-for (el in colnames(fCounterCount)) {
-  grMem = substring(el, 1, nchar(el)-5)
-  grVector[length(grVector) + 1] <- grMem
-}
+grVector <- sapply(colnames(fCounterCount), function(el) substring(el, 1, nchar(el)-5))
+grVector <- factor(grVector)
 design <- model.matrix(~0+grVector)   #0 is instruction to not add intercept
 
 
