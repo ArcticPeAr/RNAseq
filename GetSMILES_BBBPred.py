@@ -12,6 +12,13 @@ import time
 import socket
 import urllib.error
 import openpyxl
+
+#############################################################################
+#Select MoA
+#############################################################################
+wanted_MoA = "MAP kinase inhibitor"
+unwanted_MoA = "None"
+
 #############################################################################
 #Functions
 #############################################################################
@@ -25,6 +32,7 @@ def predictBBB(smiles):
     result = response.text.strip("\n").strip('\"')
     return result
 
+#Not used
 def getGCTFile(filePath):
     '''
     Function to open GCT file from Clue.io and get values from it
@@ -71,6 +79,7 @@ def name_to_smiles(compound_name):
         return smiles
     else:
         return None
+    
 
 # Example usage
 compound_name = "aspirin"
@@ -111,16 +120,7 @@ def add_smiles_to_df(df):
 
 
 
-# Define the name_to_smiles function (or you can import it if defined elsewhere)
-def name_to_smiles(compound_name):
-    url = f"https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{compound_name}/property/IsomericSMILES/txt"
-    response = requests.get(url)
-    if response.status_code == 200:
-        smiles = response.text.strip()
-        return smiles
-    else:
-        return None
-    
+
     
 #############################################################################
 #Load SMILES files
@@ -141,8 +141,6 @@ clue = pd.read_csv('/home/petear/MEGA/TormodGroup/InputData/AllAlgoSi09Aug.csv',
 #############################################################################
 #Find MoA perturbagens and merge with clue dataframe 
 #############################################################################
-wanted_MoA = "JAK inhibitor"
-unwanted_MoA = "PI3K inhibitor"
 
 #File with perturbagens per MoA
 pertMoA = pd.read_excel('/home/petear/MEGA/TormodGroup/InputData/MoACounts.xlsx', sheet_name='PertsPrMoAAll')
@@ -215,11 +213,9 @@ for i in range(len(KnownSmilesDF3["SM_Center_Canonical_ID"])):
 #############################################################################
 #BBBPred
 #############################################################################
-#remove columns if all values are NaN
-clue = clue.dropna(axis=1, how='all')
-
 #For each smile in SMILESFromFiles1, predict BBB penetration and add to new column
 
+#if column BBBPredSmileFromPubchem doesnt exist drop this code
 clue['BBBPredSmileFromPubchem'] = clue['SMILES'].apply(predictBBB)
 
 clue['BBBPredFromFile1'] = clue['SMILESFromFiles1'].apply(predictBBB)
@@ -248,8 +244,12 @@ clue = clue[[0,'BBBPredSum',  1, 2, 3, 4, 5, 6, 7, 8,9,"SMILES", "SMILESFromFile
 
 #rename columns
 clue = clue.rename(columns={0: "Pert", 1: "Cell_iname", 2: "Pert_type", 3: "Pert_idose", 4: "pert_itime", 5: "MoA", 6: "nsample", 7: "tas", 8: "raw_cs", 9: "FDR_q_nlog10", "SMILES": "SMILESFromPubchem"})
+
+#Sort BBBPredSum column
+clue = clue.sort_values(by=['BBBPredSum'], ascending=False)
+
 #############################################################################
 #Save to excel
 #############################################################################
-save_string = f'/home/petear/MEGA/TormodGroup/InputData/{wanted_MoA}.xlsx'
+save_string = f'/home/petear/MEGA/TormodGroup/InputData/{wanted_MoA}_BBB.xlsx'
 clue.to_excel(save_string, index=False)
