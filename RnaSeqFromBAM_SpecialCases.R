@@ -2,6 +2,10 @@ library(Rsubread)
 library(DESeq2)
 library(ggplot2)
 library(openxlsx)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+
+
 gtfFile <- "/media/petear/7BFE-B23C/RNAseq/Homo_sapiens.GRCh38.111.chr_patch_hapl_scaff.gtf"
 
 # Specify the directory containing BAM files
@@ -40,4 +44,15 @@ res_T11_vs_T9_T10 <- res_T11_vs_T9_T10[order(res_T11_vs_T9_T10$pvalue), ]
 
 
 
-write.xlsx(res_T11_vs_T9_T10, "/home/petear/MEGA/TormodGroup/InputData/T11vsT9andT10_dseq2.xlsx")
+write.xlsx(res_T11_vs_T9_T10, "/home/petear/MEGA/TormodGroup/InputData/T11vsT9andT10_dseq2.xlsx", rowNames = TRUE)
+
+
+
+geneSymbols <- mapIds(org.Hs.eg.db,
+                      keys = rownames(res_T11_vs_T9_T10),
+                      column = "SYMBOL",
+                      keytype = "ENSEMBL",
+                      multiVals = "first")
+
+
+res_T11_vs_T9_T10$GeneSymbol <- geneSymbols[match(rownames(res_T11_vs_T9_T10), names(geneSymbols))]
